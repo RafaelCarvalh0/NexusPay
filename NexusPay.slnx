@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/gRPC/">
+    <Project Path="NexusPay.Client/NexusPay.Client.csproj" Id="96fd9e48-12dc-459a-8fe2-a5e837b76eb4" />
+    <Project Path="NexusPay.Contracts/NexusPay.Contracts.csproj" Id="d504f4a0-7a51-498a-9407-81b16d0b49d9" />
+    <Project Path="NexusPay.Server/NexusPay.Server.csproj" Id="1610672f-096e-4953-b62d-7e5b41a0f546" />
+  </Folder>
+  <Project Path="NexusPay.Api/NexusPay.Api.csproj" Id="08ddcbd0-c648-41ac-ad14-e690c0c5ef3c" />
+  <Project Path="NexusPay.Data/NexusPay.Data.csproj" Id="63cd0770-bcec-42d3-b7b4-2e2426134fc2" />
+  <Project Path="NexusPay.Entities/NexusPay.Entities.csproj" Id="6b408746-f918-46dc-ab50-f156473b4930" />
+</Solution>

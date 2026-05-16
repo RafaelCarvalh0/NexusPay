@@ -1,0 +1,18 @@
+﻿using NexusPay.Api.Endpoints;
+
+namespace NexusPay.Api.Extensions
+{
+    public static class WebApplicationExtensions
+    {
+        extension(WebApplication app)
+        {
+            public WebApplication MapEndpoints()
+            {
+                app.MapAuthEndpoints();
+                //app.MapPaymentEndpoints();
+
+                return app;
+            }
+        }
+    }
+}
