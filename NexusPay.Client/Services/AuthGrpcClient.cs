@@ -1,8 +1,8 @@
 ﻿using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
+using NexusPay.Contracts;
 using NexusPay.Entities.Models.Auth;
-using System.Threading.Channels;
 
 namespace NexusPay.Client.Services
 {
@@ -15,8 +15,7 @@ namespace NexusPay.Client.Services
     public class AuthGrpcClient : IAuthGrpcClient
     {
         private readonly GrpcChannel _channel;
-        private readonly Contracts.Auth.AuthService.AuthServiceClient _client;
-        private readonly ILogger<AuthGrpcClient> _logger;
+        private readonly AuthService.AuthServiceClient _client;
 
         public AuthGrpcClient(string baseUrl, ILogger<AuthGrpcClient> logger)
         {
@@ -28,52 +27,27 @@ namespace NexusPay.Client.Services
                 }
             });
 
-            _logger = logger;
-            _client = new Contracts.Auth.AuthService.AuthServiceClient(_channel);
+            _client = new AuthService.AuthServiceClient(_channel);
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
-            try
+            LoginGrpcResponse response = await _client.LoginAsync(new LoginGrpcRequest
             {
-                Contracts.Auth.LoginResponse response = await _client.LoginAsync(new Contracts.Auth.LoginRequest
-                {
-                    Username = request.Username,
-                    Password = request.Password
-                });
+                Username = request.Username,
+                Password = request.Password
+            });
 
-                return new LoginResponse
-                {
-                    Token = response.Token,
-                    Message = response.Message
-                };
-            }
-            catch (RpcException ex) when (ex.StatusCode == StatusCode.InvalidArgument)
+            return new LoginResponse
             {
-                throw new Exception(ex.Status.Detail);
-            }
-            catch (RpcException ex) when (ex.StatusCode == StatusCode.NotFound)
-            {
-                throw new Exception("User not found.");
-            }
-            catch (RpcException ex)
-            {
-                _logger.LogError(ex, "Error in gRPC");
-                throw;
-            }
+                Token = response.Token,
+                Message = response.Message
+            };
         }
 
         public async Task LogoutAsync(LogoutRequest request)
         {
-            try
-            {
 
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
         }
     }
 }

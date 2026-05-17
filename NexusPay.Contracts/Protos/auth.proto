@@ -1,28 +1,28 @@
 ﻿syntax = "proto3";
 
-option csharp_namespace = "NexusPay.Contracts.Auth";
+option csharp_namespace = "NexusPay.Contracts";
 
 package auth;
 
 service AuthService {
-  rpc Login (LoginRequest) returns (LoginResponse);
-  rpc Logout (LogoutRequest) returns (LogoutResponse);
+  rpc Login (LoginGrpcRequest) returns (LoginGrpcResponse);
+  rpc Logout (LogoutGrpcRequest) returns (LogoutGrpcResponse);
 }
 
-message LoginRequest {
+message LoginGrpcRequest {
   string username = 1;
   string password = 2;
 }
 
-message LoginResponse {
+message LoginGrpcResponse	 {
   string token = 1;
   string message = 2;
 }
 
-message LogoutRequest {
+message LogoutGrpcRequest {
   string token = 1;
 }
 
-message LogoutResponse {
+message LogoutGrpcResponse {
   string message = 1;
 }

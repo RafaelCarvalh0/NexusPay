@@ -13,6 +13,13 @@ namespace NexusPay.Api.Extensions
 
                 return app;
             }
+
+            public WebApplication UseGlobalMiddlewares()
+            {
+                app.UseExceptionHandler();
+
+                return app;
+            }
         }
     }
 }

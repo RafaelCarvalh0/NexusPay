@@ -1,4 +1,5 @@
-﻿using NexusPay.Client.Services;
+﻿using NexusPay.Api.Middlewares;
+using NexusPay.Client.Services;
 
 namespace NexusPay.Api.Extensions
 {
@@ -10,6 +11,8 @@ namespace NexusPay.Api.Extensions
             {
                 services
                     .AddValidators()
+                    .AddExceptionHandler<GlobalExceptionHandler>()
+                    .AddProblemDetails()
                     .AddServices(configuration.GetSection("GrpcServer").GetSection("BaseUrl").Value!);
 
                 return services;

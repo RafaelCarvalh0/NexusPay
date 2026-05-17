@@ -14,13 +14,13 @@ namespace NexusPay.Api.Endpoints
 
         private static RouteGroupBuilder MapAuthGroup(this RouteGroupBuilder group)
         {
-            group.MapPost("Login", (LoginRequest request, IAuthGrpcClient service) =>
+            group.MapPost("Login", async (LoginRequest request, IAuthGrpcClient service) =>
             {
-                var response = service.LoginAsync(request).Result;
-                return Results.Ok(new { Token = response.Token });
+                var response = await service.LoginAsync(request);
+                return Results.Ok(new { response.Token });
             });
 
-            group.MapPost("Register", (/*RegisterRequest request*/) =>
+            group.MapPost("Register", async (/*RegisterRequest request*/) =>
             {
                 // Implement registration logic here
                 return Results.Ok(new { Message = "User registered successfully" });

@@ -1,5 +1,5 @@
 ﻿using Grpc.Core;
-using NexusPay.Contracts.Auth;
+using NexusPay.Contracts;
 
 namespace NexusPay.Server.Services
 {
@@ -12,7 +12,7 @@ namespace NexusPay.Server.Services
             _logger = logger;
         }
 
-        public override Task<LoginResponse> Login(LoginRequest request, ServerCallContext context)
+        public override Task<LoginGrpcResponse> Login(LoginGrpcRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Received authentication request for user: {Username}", request.Username);
 
@@ -21,7 +21,7 @@ namespace NexusPay.Server.Services
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Username and password are required"));
             }
 
-            var response = new LoginResponse
+            var response = new LoginGrpcResponse
             {
                 Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ODc2NTQzMjEiLCJuYW1lIjoiUmFmYWVsIENhcnZhbGhvIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzQ3MzY4MDAwLCJleHAiOjE3NDczNzE2MDB9.X8mV9Kp2WfQ7LnD4sYt3AzrQvHnE5BcJuR2xZaKf91A",
                 Message = "Authentication successful"
@@ -29,7 +29,7 @@ namespace NexusPay.Server.Services
             return Task.FromResult(response);
         }
 
-        public override async Task<LogoutResponse> Logout(LogoutRequest request, ServerCallContext context)
+        public override async Task<LogoutGrpcResponse> Logout(LogoutGrpcRequest request, ServerCallContext context)
         {
             _logger.LogInformation(
                 "Logout recebido para token: {Token}", request.Token);
@@ -38,7 +38,7 @@ namespace NexusPay.Server.Services
 
             // Aqui vai sua lógica de invalidar o token
 
-            return new LogoutResponse
+            return new LogoutGrpcResponse
             {
                 Message = "Logout realizado com sucesso"
             };

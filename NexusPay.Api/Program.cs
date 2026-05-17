@@ -24,6 +24,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseGlobalMiddlewares();
 app.MapEndpoints();
 
 app.Run();
