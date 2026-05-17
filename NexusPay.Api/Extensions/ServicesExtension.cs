@@ -1,5 +1,11 @@
-﻿using NexusPay.Api.Middlewares;
+﻿using FluentValidation;
+using Grpc.Net.Client;
+using NexusPay.Api.Middlewares;
 using NexusPay.Client.Services;
+using NexusPay.Shared.Models.Auth;
+using NexusPay.Shared.Models.Auth.Validators;
+using NexusPay.Shared.Models.User;
+using NexusPay.Shared.Models.User.Validators;
 
 namespace NexusPay.Api.Extensions
 {
@@ -13,20 +19,35 @@ namespace NexusPay.Api.Extensions
                     .AddValidators()
                     .AddExceptionHandler<GlobalExceptionHandler>()
                     .AddProblemDetails()
-                    .AddServices(configuration.GetSection("GrpcServer").GetSection("BaseUrl").Value!);
+                    .AddGrpcClientServices(configuration.GetSection("GrpcServer").GetSection("BaseUrl").Value!);
 
                 return services;
             }
 
             private IServiceCollection AddValidators()
             {
-                //services.AddScoped<IValidator<PaymentRequest>, PaymentRequestValidator>();
+                services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
+                services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
+                
                 return services;
             }
 
-            private IServiceCollection AddServices(string baseUrl)
+            private IServiceCollection AddGrpcClientServices(string baseUrl)
             {
-                services.AddScoped<IAuthGrpcClient, AuthGrpcClient>(provider => new AuthGrpcClient(baseUrl, provider.GetRequiredService<ILogger<AuthGrpcClient>>()));
+                services.AddSingleton(provider =>
+                {
+                    return GrpcChannel.ForAddress(baseUrl, new GrpcChannelOptions
+                    {
+                        HttpHandler = new HttpClientHandler
+                        {
+                            ServerCertificateCustomValidationCallback =
+                                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                        }
+                    });
+                });
+
+                services.AddScoped<IUserGrpcClient, UserGrpcClient>();
+                services.AddScoped<IAuthGrpcClient, AuthGrpcClient>();
 
                 return services;
             }

@@ -1,13 +1,17 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Grpc.Core;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
+using NexusPay.Contracts;
 using NexusPay.Data.Configuration;
+using NexusPay.Data.Helper;
 using System.Data;
 
 namespace NexusPay.Data.Repositories
 {
     public interface IAuthRepository
     {
-        Task Login(/*LoginRequest request*/);
+        Task<LoginGrpcResponse> Login(LoginGrpcRequest request);
+        Task<LogoutGrpcResponse> Logout(LogoutGrpcRequest request);
     }
 
     public class AuthRepository : IAuthRepository
@@ -20,23 +24,46 @@ namespace NexusPay.Data.Repositories
             _logger = logger;
         }
 
-        public async Task Login(/*LoginRequest request*/)
+        public async Task<LoginGrpcResponse> Login(LoginGrpcRequest request)
         {
-            try
+            var storedHash = await _repo.ExecuteScalarAsync(
+               command: "SP_GET_USER_BY_EMAIL",
+               type: CommandType.StoredProcedure,
+               new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.VarChar }
+            );
+
+            if (storedHash is null)
+                throw new RpcException(new Status(StatusCode.Unauthenticated, "Email not found"));
+
+            else if (storedHash is string && !PasswordHelper.Verify(request.Password, storedHash.ToString()!))
+                throw new RpcException(new Status(StatusCode.Unauthenticated, "Invalid password"));
+
+            else
             {
-                var result = await _repo.ExecuteScalarAsync(
-                   command: "SP_PROCEDURE_NAME",
+                var result = await _repo.ExecuteDataRowAsync(
+                   command: "SP_LOGIN_USER",
                    type: CommandType.StoredProcedure,
-                   new SqlParameter() {  }
-                   //new SqlParameter() { ParameterName = "@p_json", Value = JsonConvert.SerializeObject(autbankResponse), SqlDbType = SqlDbType.VarChar },
-                   //new SqlParameter() { ParameterName = "@p_gooroo_request_perc_juros_negociado", Value = requestGooroo.dto.PercJurosNegociado, SqlDbType = SqlDbType.Decimal }
-               );
+                   new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.VarChar },
+                   new SqlParameter() { ParameterName = "@HASHED_PASSWORD", Value = storedHash.ToString(), SqlDbType = SqlDbType.VarChar }
+                );
+
+                var id = result["ID"].ToString();
+                var name = result["USERNAME"].ToString();
+                var email = result["EMAIL"].ToString();
+                var createdAt = Convert.ToDateTime(result["CREATEDAT"]);
+                var isActive = Convert.ToBoolean(result["ISACTIVE"]);
+
+                return new LoginGrpcResponse
+                {
+                    Token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5ODc2NTQzMjEiLCJuYW1lIjoiUmFmYWVsIENhcnZhbGhvIiwicm9sZSI6IkFkbWluIiwiaWF0IjoxNzQ3MzY4MDAwLCJleHAiOjE3NDczNzE2MDB9.X8mV9Kp2WfQ7LnD4sYt3AzrQvHnE5BcJuR2xZaKf91A",
+                    Message = "Authentication successful"
+                };
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred during login.");
-                throw;
-            }
+        }
+
+        public async Task<LogoutGrpcResponse> Logout(LogoutGrpcRequest request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

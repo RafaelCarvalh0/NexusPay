@@ -1,5 +1,6 @@
-﻿using NexusPay.Client.Services;
-using NexusPay.Entities.Models.Auth;
+﻿using NexusPay.Api.Extensions;
+using NexusPay.Client.Services;
+using NexusPay.Shared.Models.Auth;
 
 namespace NexusPay.Api.Endpoints
 {
@@ -18,12 +19,12 @@ namespace NexusPay.Api.Endpoints
             {
                 var response = await service.LoginAsync(request);
                 return Results.Ok(new { response.Token });
-            });
+            }).WithValidation<LoginRequest>();
 
-            group.MapPost("Register", async (/*RegisterRequest request*/) =>
+            group.MapPost("Logout", async (LogoutRequest request, IAuthGrpcClient service) =>
             {
-                // Implement registration logic here
-                return Results.Ok(new { Message = "User registered successfully" });
+                await service.LogoutAsync(request);
+                return Results.Ok();
             });
 
             return group;

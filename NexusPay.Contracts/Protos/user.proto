@@ -1,0 +1,19 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "NexusPay.Contracts";
+
+package user;
+
+service UserService {
+  rpc CreateUser (CreateUserGrpcRequest) returns (CreateUserGrpcResponse);
+}
+
+message CreateUserGrpcRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message CreateUserGrpcResponse {
+  string message = 1;
+}

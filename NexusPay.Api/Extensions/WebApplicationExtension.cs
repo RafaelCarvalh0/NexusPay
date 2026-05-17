@@ -8,6 +8,7 @@ namespace NexusPay.Api.Extensions
         {
             public WebApplication MapEndpoints()
             {
+                app.MapUserEndpoints();
                 app.MapAuthEndpoints();
                 //app.MapPaymentEndpoints();
 

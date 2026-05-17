@@ -6,5 +6,5 @@
   </Folder>
   <Project Path="NexusPay.Api/NexusPay.Api.csproj" Id="08ddcbd0-c648-41ac-ad14-e690c0c5ef3c" />
   <Project Path="NexusPay.Data/NexusPay.Data.csproj" Id="63cd0770-bcec-42d3-b7b4-2e2426134fc2" />
-  <Project Path="NexusPay.Entities/NexusPay.Entities.csproj" Id="6b408746-f918-46dc-ab50-f156473b4930" />
+  <Project Path="NexusPay.Shared/NexusPay.Shared.csproj" Id="0d690ad3-a094-42af-845a-a3baaa9ea8f9" />
 </Solution>

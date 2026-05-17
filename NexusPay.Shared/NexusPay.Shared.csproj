@@ -7,16 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\NexusPay.Contracts\Protos\*.proto" GrpcServices="Client" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Grpc.Net.Client" Version="2.80.0" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.10" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NexusPay.Contracts\NexusPay.Contracts.csproj" />
-    <ProjectReference Include="..\NexusPay.Shared\NexusPay.Shared.csproj" />
   </ItemGroup>
 
 </Project>

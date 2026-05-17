@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NexusPay.Client\NexusPay.Client.csproj" />
     <ProjectReference Include="..\NexusPay.Contracts\NexusPay.Contracts.csproj" />
+    <ProjectReference Include="..\NexusPay.Shared\NexusPay.Shared.csproj" />
   </ItemGroup>
 
 </Project>
