@@ -1,6 +1,8 @@
 ﻿using NexusPay.Data.Configuration;
 using NexusPay.Data.Repositories;
+using NexusPay.Server.Helper;
 using NexusPay.Server.Interceptors;
+using NexusPay.Shared.Models.Jwt;
 
 namespace NexusPay.Server.Extensions
 {
@@ -13,9 +15,18 @@ namespace NexusPay.Server.Extensions
                 string connectionString = configuration.GetConnectionString("SQL") ?? throw new InvalidOperationException("Connection string 'SQL' not found.");
 
                 services
+                    .AddServices(configuration.GetSection("Jwt"))
                     .AddGlobalException()
                     .AddRepositories()
                     .AddInfrasctructure(connectionString);
+
+                return services;
+            }
+
+            private IServiceCollection AddServices(IConfigurationSection jwtSection)
+            {
+                services.Configure<JwtSettings>(jwtSection);
+                services.AddScoped<IJwtService, JwtService>();
 
                 return services;
             }

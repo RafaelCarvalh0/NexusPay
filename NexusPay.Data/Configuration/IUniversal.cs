@@ -255,6 +255,9 @@ namespace NexusPay.Data.Configuration
                         var ds = new DataSet();
                         adapter.Fill(ds);
 
+                        if (ds.Tables.Count == 0 || ds.Tables[0].Rows.Count == 0)
+                            return null!;
+
                         return ds.Tables[0].Rows[0];
                     }
                 }

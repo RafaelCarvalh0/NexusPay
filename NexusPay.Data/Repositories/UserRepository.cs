@@ -15,7 +15,7 @@ namespace NexusPay.Data.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly IUniversal _repo;
-        public UserRepository(IUniversal universal, ILogger<UserRepository> logger)
+        public UserRepository(IUniversal universal)
         {
             _repo = universal;
         }
@@ -27,7 +27,7 @@ namespace NexusPay.Data.Repositories
             await _repo.ExecuteNonQueryAsync(
                 command: "SP_CREATE_USER",
                 type: CommandType.StoredProcedure,
-                new SqlParameter() { ParameterName = "@USER_NAME", Value = request.Name, SqlDbType = SqlDbType.VarChar },
+                new SqlParameter() { ParameterName = "@NAME", Value = request.Name, SqlDbType = SqlDbType.VarChar },
                 new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.VarChar },
                 new SqlParameter() { ParameterName = "@HASHED_PASSWORD", Value = hashedPassword, SqlDbType = SqlDbType.VarChar }
             );

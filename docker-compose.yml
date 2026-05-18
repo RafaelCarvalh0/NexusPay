@@ -1,4 +1,3 @@
-# docker-compose.yml
 services:
     sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest
@@ -12,5 +11,16 @@ services:
         volumes:
             - sqlserver_data:/var/opt/mssql
 
+    cloudbeaver:
+        image: dbeaver/cloudbeaver:latest
+        container_name: nexuspay-cloudbeaver
+        ports:
+            - "8978:8978"
+        depends_on:
+            - sqlserver
+        volumes:
+            - cloudbeaver_data:/opt/cloudbeaver/workspace
+
 volumes:
     sqlserver_data:
+    cloudbeaver_data:

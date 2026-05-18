@@ -1,4 +1,4 @@
 ﻿namespace NexusPay.Shared.Models.Auth
 {
-    public record LogoutRequest(string Token);
+    public record LogoutRequest(Guid Id);
 }

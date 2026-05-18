@@ -2,13 +2,14 @@
 using Microsoft.Extensions.Logging;
 using NexusPay.Contracts;
 using NexusPay.Shared.Models.Auth;
+using NexusPay.Shared.Models.Auth.Claims;
 
 namespace NexusPay.Client.Services
 {
     public interface IAuthGrpcClient
     {
         Task<LoginResponse> LoginAsync(LoginRequest request);
-        Task LogoutAsync(LogoutRequest request);
+        Task<LogoutResponse> LogoutAsync(LogoutRequest request);
     }
 
     public class AuthGrpcClient : IAuthGrpcClient
@@ -28,12 +29,24 @@ namespace NexusPay.Client.Services
                 Password = request.Password
             });
 
-            return new LoginResponse(Token: response.Token, Message: response.Message);
+            return new LoginResponse(
+                Token: response.Token,
+                TokenType: response.TokenType,
+                ExpiresIn: response.ExpiresIn,
+                UserId: response.UserId,
+                UserName: response.UserName,
+                Role: response.Role
+            );
         }
 
-        public async Task LogoutAsync(LogoutRequest request)
+        public async Task<LogoutResponse> LogoutAsync(LogoutRequest request)
         {
+            LogoutGrpcResponse response = await _client.LogoutAsync(new LogoutGrpcRequest
+            {
+                Id = request.Id.ToString()
+            });
 
+            return new LogoutResponse(response.Message);   
         }
     }
 }

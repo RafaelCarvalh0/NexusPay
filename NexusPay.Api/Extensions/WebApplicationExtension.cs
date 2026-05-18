@@ -17,7 +17,10 @@ namespace NexusPay.Api.Extensions
 
             public WebApplication UseGlobalMiddlewares()
             {
+                app.UseCors("NexusPayPolicy");
                 app.UseExceptionHandler();
+                app.UseAuthentication();
+                app.UseAuthorization();
 
                 return app;
             }
