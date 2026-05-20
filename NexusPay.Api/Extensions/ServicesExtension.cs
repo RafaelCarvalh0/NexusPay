@@ -9,7 +9,6 @@ using NexusPay.Shared.Models.Auth.Validators;
 using NexusPay.Shared.Models.Jwt;
 using NexusPay.Shared.Models.User;
 using NexusPay.Shared.Models.User.Validators;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 namespace NexusPay.Api.Extensions

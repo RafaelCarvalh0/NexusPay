@@ -63,6 +63,7 @@ Cliente HTTP
 - **BCrypt.Net** — Hash seguro de senhas
 - **JWT Bearer** — Autenticação stateless
 - **Redis** — Gerenciamento de sessão e blacklist de tokens
+- **Scalar / OpenAPI** — Documentação interativa de endpoints
 - **Docker** — Containerização do banco de dados, Redis e CloudBeaver
 - **CloudBeaver** — Interface web para gerenciamento do banco
 
@@ -107,17 +108,11 @@ Acesse `http://localhost:8978` e conecte ao SQL Server:
 
 ### 4. Execute os scripts SQL na ordem
 
-**Obrigatórios:**
-```
-Database/Tables/V1__Users.sql
-Database/StoredProcedures/V1__SP_CREATE_USER.sql
-Database/StoredProcedures/V1__SP_LOGIN_USER.sql
-```
+Execute todos os arquivos da pasta `Database/` na seguinte ordem:
 
-**Apenas em desenvolvimento:**
-```
-Database/Seeds/Development/V1__DefaultUser.sql
-```
+1. `Tables/`
+2. `StoredProcedures/`
+3. `Seeds/Development/` ← apenas em desenvolvimento
 
 ### 5. Configure o ambiente
 
@@ -149,6 +144,8 @@ cd NexusPay.Server && dotnet run
 # Terminal 2 — API REST
 cd NexusPay.Api && dotnet run
 ```
+
+Acesse a documentação interativa da API em `http://localhost:5000/scalar/v1`
 
 ---
 
@@ -211,13 +208,9 @@ Authorization: Bearer {token}
 ```
 Database/
 ├── Tables/
-│     └── V1__Users.sql
 ├── StoredProcedures/
-│     ├── V1__SP_CREATE_USER.sql
-│     └── V1__SP_LOGIN_USER.sql
 └── Seeds/
       └── Development/
-            └── V1__DefaultUser.sql
 ```
 
 > Scripts versionados com prefixo `V{n}__` — nunca edite um script já commitado, sempre crie uma nova versão.
