@@ -1,0 +1,34 @@
+USE [NexusPay]
+GO
+
+/****** Object:  StoredProcedure [dbo].[SP_LOGIN_USER]    Script Date: 5/20/2026 8:44:56 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- AUTHOR:      RAFAEL HENRIQUE DE CARVALHO
+-- CREATE DATE: 05/17/2026
+-- DESCRIPTION: FIND AN USER INTO THE USERS TABLE
+-- =============================================
+CREATE   PROCEDURE [dbo].[SP_LOGIN_USER]
+    @EMAIL NVARCHAR(255)
+AS
+BEGIN
+
+    SET NOCOUNT ON;
+    
+	IF (@EMAIL IS NULL OR @EMAIL = '')
+		THROW 99999, 'EMAIL IS REQUIRED, PLEASE CHECK IT!', 1;
+
+    ELSE 
+	   BEGIN
+		 SELECT ID, NAME, EMAIL, PASSWORDHASH, 'Admin' AS ROLE FROM USERS WHERE EMAIL = @EMAIL AND ISACTIVE = 1
+	   END
+
+END;
+GO
+
+
