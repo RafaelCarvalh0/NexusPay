@@ -1,6 +1,6 @@
 # NexusPay 💳
 
-> Plataforma de pagamentos de alta performance construída com arquitetura orientada a serviços, comunicação via gRPC e autenticação JWT.
+> Plataforma de pagamentos de alta performance construída com arquitetura orientada a serviços, comunicação via gRPC, autenticação JWT e gerenciamento de sessão via Redis.
 
 ---
 
@@ -23,7 +23,7 @@ Cliente HTTP
      ▼
 ┌─────────────────────┐
 │   NexusPay.Api      │  ASP.NET Core Minimal APIs + JWT Auth
-│   (REST :5000)      │
+│   (REST :5000)      │  + TokenValidationMiddleware (Redis)
 └────────┬────────────┘
          │ gRPC (HTTP/2 + Protobuf)
          ▼
@@ -31,12 +31,12 @@ Cliente HTTP
 │  NexusPay.Server    │  Serviços gRPC internos
 │  (gRPC :7199)       │
 └────────┬────────────┘
-         │ ADO.NET + Stored Procedures
-         ▼
-┌─────────────────────┐
-│   SQL Server        │  Docker Container
-│   (:1433)           │
-└─────────────────────┘
+         │ ADO.NET + Stored Procedures     Redis (Sessões)
+         ▼                                      │
+┌─────────────────────┐             ┌───────────┴──────────┐
+│   SQL Server        │             │   Redis              │
+│   Docker (:1433)    │             │   Docker (:6379)     │
+└─────────────────────┘             └──────────────────────┘
 ```
 
 ### Projetos
@@ -62,7 +62,8 @@ Cliente HTTP
 - **FluentValidation** — Validação de entrada declarativa
 - **BCrypt.Net** — Hash seguro de senhas
 - **JWT Bearer** — Autenticação stateless
-- **Docker** — Containerização do banco de dados
+- **Redis** — Gerenciamento de sessão e blacklist de tokens
+- **Docker** — Containerização do banco de dados, Redis e CloudBeaver
 - **CloudBeaver** — Interface web para gerenciamento do banco
 
 ---
@@ -83,15 +84,17 @@ git clone https://github.com/seu-usuario/nexuspay.git
 cd nexuspay
 ```
 
-### 2. Suba o banco de dados e CloudBeaver
+### 2. Suba os containers
 
 ```bash
 docker-compose up -d
 ```
 
-Aguarde os containers subirem e acesse o CloudBeaver em `http://localhost:8978`.
+Isso sobe o **SQL Server**, **Redis** e **CloudBeaver** automaticamente.
 
 ### 3. Configure a conexão no CloudBeaver
+
+Acesse `http://localhost:8978` e conecte ao SQL Server:
 
 | Campo | Valor |
 |---|---|
@@ -122,6 +125,10 @@ Verifique os `appsettings.json` de `NexusPay.Api` e `NexusPay.Server`:
 
 ```json
 {
+  "ConnectionStrings": {
+    "SQL": "Server=localhost,1433; Database=NexusPay; User Id=sa; Password=NexusPay@123; TrustServerCertificate=True;",
+    "Redis": "localhost:6379"
+  },
   "Jwt": {
     "Issuer": "NexusPay",
     "Audience": "NexusPayUsers",
@@ -145,16 +152,23 @@ cd NexusPay.Api && dotnet run
 
 ---
 
-## Autenticação
+## Autenticação e Sessão
 
-A API utiliza **JWT Bearer Token**. Após o login, inclua o token em todas as requisições autenticadas:
+A API utiliza **JWT Bearer Token** com gerenciamento de sessão via **Redis**. Após o login, inclua o token em todas as requisições autenticadas:
 
 ```
 Authorization: Bearer {token}
 ```
 
-### Endpoint de login
+### Comportamento de sessão
 
+- **Novo login com sessão ativa** — o token anterior é automaticamente invalidado. Apenas uma sessão ativa por usuário é permitida
+- **Logout** — invalida o token imediatamente no Redis, independente do tempo de expiração
+- **Token revogado** — qualquer requisição com token inválido retorna `401 Unauthorized`
+
+### Endpoints de autenticação
+
+**Login:**
 ```http
 POST /auth/login
 Content-Type: application/json
@@ -175,6 +189,12 @@ Content-Type: application/json
   "userName": "Default User",
   "role": "User"
 }
+```
+
+**Logout:**
+```http
+POST /auth/logout
+Authorization: Bearer {token}
 ```
 
 ### Credenciais do usuário default (desenvolvimento)
@@ -208,6 +228,9 @@ Database/
 
 - Senhas armazenadas com **BCrypt** (hash + salt automático)
 - Tokens JWT com expiração configurável e `ClockSkew = Zero`
+- **Sessão única por usuário** — novo login invalida automaticamente a sessão anterior
+- **Blacklist de tokens no Redis** — invalidação imediata no logout, TTL automático
+- **TokenValidationMiddleware** — verifica blacklist do Redis em toda requisição autenticada
 - CORS configurado por origem explícita
 - Validação de entrada em todas as rotas via FluentValidation
 - Erros internos nunca expostos ao cliente — tratados pelo `GlobalExceptionHandler`
