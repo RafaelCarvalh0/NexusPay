@@ -1,14 +1,15 @@
 <Solution>
   <Folder Name="/Database/" />
   <Folder Name="/Database/Seeds/">
-    <File Path="Database/Seeds/V1__DefaultUser.sql" />
+    <File Path="Database/Seeds/DefaultUser.sql" />
   </Folder>
   <Folder Name="/Database/StoredProcedures/">
-    <File Path="Database/StoredProcedures/V1__SP_CREATE_USER.sql" />
-    <File Path="Database/StoredProcedures/V1__SP_LOGIN_USER.sql" />
+    <File Path="Database/StoredProcedures/SP_CREATE_USER.sql" />
+    <File Path="Database/StoredProcedures/SP_LOGIN_USER.sql" />
+    <File Path="Database/StoredProcedures/SP_UPDATE_USER.sql" />
   </Folder>
   <Folder Name="/Database/Tables/">
-    <File Path="Database/Tables/V1__Users.sql" />
+    <File Path="Database/Tables/Users.sql" />
   </Folder>
   <Folder Name="/gRPC/">
     <Project Path="NexusPay.Client/NexusPay.Client.csproj" Id="96fd9e48-12dc-459a-8fe2-a5e837b76eb4" />

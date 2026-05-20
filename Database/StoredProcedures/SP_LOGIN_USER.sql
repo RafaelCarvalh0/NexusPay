@@ -1,7 +1,7 @@
 USE [NexusPay]
 GO
 
-/****** Object:  StoredProcedure [dbo].[SP_LOGIN_USER]    Script Date: 5/20/2026 8:44:56 AM ******/
+/****** Object:  StoredProcedure [dbo].[SP_LOGIN_USER]    Script Date: 5/20/2026 6:08:29 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -11,9 +11,9 @@ GO
 -- =============================================
 -- AUTHOR:      RAFAEL HENRIQUE DE CARVALHO
 -- CREATE DATE: 05/17/2026
--- DESCRIPTION: FIND AN USER INTO THE USERS TABLE
+-- DESCRIPTION: RETRIEVES USER CREDENTIALS BY EMAIL FOR AUTHENTICATION
 -- =============================================
-CREATE OR ALTER PROCEDURE [dbo].[SP_LOGIN_USER]
+CREATE OR ALTER   PROCEDURE [dbo].[SP_LOGIN_USER]
     @EMAIL NVARCHAR(255)
 AS
 BEGIN
@@ -21,7 +21,7 @@ BEGIN
     SET NOCOUNT ON;
     
 	IF (@EMAIL IS NULL OR @EMAIL = '')
-		THROW 99999, 'EMAIL IS REQUIRED, PLEASE VERIFY!', 1;
+		THROW 99999, 'Email is required.', 1;
 
     ELSE 
 	   BEGIN

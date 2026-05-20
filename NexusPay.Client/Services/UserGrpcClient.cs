@@ -7,7 +7,8 @@ namespace NexusPay.Client.Services
 {
     public interface IUserGrpcClient
     {
-        Task<CreateUserResponse> CreateUserAsync(CreateUserRequest request);
+        Task CreateUserAsync(CreateUserRequest request);
+        Task UpdateUserAsync(string id, UpdateUserRequest request);
     }
 
     public class UserGrpcClient : IUserGrpcClient
@@ -18,16 +19,24 @@ namespace NexusPay.Client.Services
         {
             _client = new UserService.UserServiceClient(channel);
         }
-        public async Task<CreateUserResponse> CreateUserAsync(CreateUserRequest request)
+        public async Task CreateUserAsync(CreateUserRequest request)
         {
-            CreateUserGrpcResponse response = await _client.CreateUserAsync(new CreateUserGrpcRequest
+            await _client.CreateUserAsync(new CreateUserGrpcRequest
             {
                 Name = request.Name,
                 Email = request.Email,
                 Password = request.Password
             });
+        }
 
-            return new CreateUserResponse(Message: response.Message);
+        public async Task UpdateUserAsync(string id, UpdateUserRequest request)
+        {
+            await _client.UpdateUserAsync(new UpdateUserGrpcRequest
+            {
+                Id = id,
+                Name = request.Name,
+                Email = request.Email
+            });
         }
     }
 }

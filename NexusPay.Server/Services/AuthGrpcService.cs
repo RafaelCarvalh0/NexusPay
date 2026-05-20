@@ -3,6 +3,7 @@ using NexusPay.Contracts;
 using NexusPay.Data.Repositories;
 using NexusPay.Server.Helper.Jwt;
 using NexusPay.Server.Helper.Redis;
+using NexusPay.Shared.Models.Auth;
 using NexusPay.Shared.Models.Auth.Claims;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -33,7 +34,11 @@ namespace NexusPay.Server.Services
             if (string.IsNullOrWhiteSpace(request.Password))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Password is required"));
 
-            AuthClaims user = await _authRepository.Login(request);
+            AuthClaims user = await _authRepository.Login(new LoginRequest
+            (
+                Email: request.Email,
+                Password: request.Password
+            ));
 
             // Check for an existing active session and revoke it if found
             string? activeJti = await _redisService.GetActiveSessionAsync(user.Id.ToString());

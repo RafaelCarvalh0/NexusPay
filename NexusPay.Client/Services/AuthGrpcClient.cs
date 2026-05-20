@@ -8,7 +8,7 @@ namespace NexusPay.Client.Services
     public interface IAuthGrpcClient
     {
         Task<LoginResponse> LoginAsync(LoginRequest request);
-        Task<LogoutResponse> LogoutAsync(LogoutRequest request);
+        Task LogoutAsync(LogoutRequest request);
         Task<bool> IsTokenRevokedAsync(string jti);
     }
 
@@ -39,15 +39,13 @@ namespace NexusPay.Client.Services
             );
         }
 
-        public async Task<LogoutResponse> LogoutAsync(LogoutRequest request)
+        public async Task LogoutAsync(LogoutRequest request)
         {
             LogoutGrpcResponse response = await _client.LogoutAsync(new LogoutGrpcRequest
             {
                 Jti = request.Jti,
                 UserId = request.UserId
             });
-
-            return new LogoutResponse(response.Message);
         }
 
         public async Task<bool> IsTokenRevokedAsync(string jti)

@@ -1,9 +1,8 @@
 ﻿using Grpc.Core;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
-using NexusPay.Contracts;
 using NexusPay.Data.Configuration;
 using NexusPay.Data.Helper;
+using NexusPay.Shared.Models.Auth;
 using NexusPay.Shared.Models.Auth.Claims;
 using System.Data;
 
@@ -11,8 +10,7 @@ namespace NexusPay.Data.Repositories
 {
     public interface IAuthRepository
     {
-        Task<AuthClaims> Login(LoginGrpcRequest request);
-        Task<LogoutGrpcResponse> Logout(LogoutGrpcRequest request);
+        Task<AuthClaims> Login(LoginRequest request);
     }
 
     public class AuthRepository : IAuthRepository
@@ -23,7 +21,7 @@ namespace NexusPay.Data.Repositories
             _repo = universal;
         }
 
-        public async Task<AuthClaims> Login(LoginGrpcRequest request)
+        public async Task<AuthClaims> Login(LoginRequest request)
         {
             DataRow? result = await _repo.ExecuteDataRowAsync(
                command: "SP_LOGIN_USER",
@@ -38,11 +36,6 @@ namespace NexusPay.Data.Repositories
                 throw new RpcException(new Status(StatusCode.Unauthenticated, "Invalid password."));
 
             return AuthClaims.FromDataRow(result);
-        }
-
-        public async Task<LogoutGrpcResponse> Logout(LogoutGrpcRequest request)
-        {
-            throw new NotImplementedException();
         }
     }
 }

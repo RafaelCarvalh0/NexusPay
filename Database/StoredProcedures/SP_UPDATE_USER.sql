@@ -1,0 +1,34 @@
+USE [NexusPay]
+GO
+
+/****** Object:  StoredProcedure [dbo].[SP_UPDATE_USER]    Script Date: 5/20/2026 6:05:56 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- AUTHOR:      RAFAEL HENRIQUE DE CARVALHO
+-- CREATE DATE: 05/20/2026
+-- DESCRIPTION: UPDATE AN USER INTO THE USERS TABLE
+-- =============================================
+CREATE OR ALTER   PROCEDURE [dbo].[SP_UPDATE_USER]
+    @ID NVARCHAR(100),
+    @NAME NVARCHAR(100),
+    @EMAIL NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	IF NOT EXISTS (SELECT 1 FROM USERS WHERE ID = @ID)
+		THROW 99999, 'User not found.', 1;
+
+    IF EXISTS (SELECT 1 FROM USERS WHERE EMAIL = @EMAIL AND ID != @ID)
+		THROW 99999, 'Email is already in use.', 1;
+
+	UPDATE USERS SET NAME = @NAME, EMAIL = @EMAIL WHERE ID = @ID
+END
+GO
+
+

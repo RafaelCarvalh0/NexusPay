@@ -1,6 +1,8 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using NexusPay.Contracts;
 using NexusPay.Data.Repositories;
+using NexusPay.Shared.Models.User;
 
 namespace NexusPay.Server.Services
 {
@@ -15,7 +17,7 @@ namespace NexusPay.Server.Services
             _userRepository = userRepository;
         }
 
-        public override async Task<CreateUserGrpcResponse> CreateUser(CreateUserGrpcRequest request, ServerCallContext context)
+        public override async Task<Empty> CreateUser(CreateUserGrpcRequest request, ServerCallContext context)
         {
             _logger.LogInformation("Received CreateUser request for email: {Email}", request.Email);
 
@@ -28,7 +30,33 @@ namespace NexusPay.Server.Services
             if (string.IsNullOrWhiteSpace(request.Password))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Password is required"));
 
-            return await _userRepository.CreateUser(request);
+            await _userRepository.CreateUser(new CreateUserRequest
+            (
+                Name: request.Name,
+                Email: request.Email,
+                Password: request.Password
+            ));
+
+            return new Empty();
+        }
+
+        public override async Task<Empty> UpdateUser(UpdateUserGrpcRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received UpdateUser request for email: {Email}", request.Email);
+
+            if (string.IsNullOrWhiteSpace(request.Name))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Name is required"));
+
+            if (string.IsNullOrWhiteSpace(request.Email))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Email is required"));
+
+            await _userRepository.UpdateUser(request.Id, new UpdateUserRequest
+            (
+                Name: request.Name,
+                Email: request.Email
+            ));
+
+            return new Empty();
         }
     }
 }

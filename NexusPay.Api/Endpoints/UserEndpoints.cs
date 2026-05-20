@@ -1,6 +1,8 @@
-﻿using NexusPay.Api.Extensions;
+﻿using Microsoft.AspNetCore.Mvc;
+using NexusPay.Api.Extensions;
 using NexusPay.Client.Services;
 using NexusPay.Shared.Models.User;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace NexusPay.Api.Endpoints
 {
@@ -17,9 +19,22 @@ namespace NexusPay.Api.Endpoints
         {
             group.MapPost("Create", async (CreateUserRequest request, IUserGrpcClient service) =>
             {
-                var response = await service.CreateUserAsync(request);
-                return Results.Ok(response);
+                await service.CreateUserAsync(request);
+                return Results.Ok(new { Message = "User created successfully" });
+
             }).WithValidation<CreateUserRequest>();
+
+            group.MapPatch("Update", async (HttpContext context, UpdateUserRequest request, IUserGrpcClient service) =>
+            {
+                string? userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+                if (string.IsNullOrWhiteSpace(userId))
+                    return Results.Unauthorized();
+
+                await service.UpdateUserAsync(userId, request);
+                return Results.Ok(new { Message = "User updated successfully" });
+
+            }).RequireAuthorization().WithValidation<UpdateUserRequest>();
 
             return group;
         }

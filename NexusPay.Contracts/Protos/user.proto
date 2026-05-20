@@ -1,11 +1,12 @@
 ﻿syntax = "proto3";
-
+import "google/protobuf/empty.proto";
 option csharp_namespace = "NexusPay.Contracts";
 
 package user;
 
 service UserService {
-  rpc CreateUser (CreateUserGrpcRequest) returns (CreateUserGrpcResponse);
+  rpc CreateUser (CreateUserGrpcRequest) returns (google.protobuf.Empty);
+  rpc UpdateUser (UpdateUserGrpcRequest) returns (google.protobuf.Empty);
 }
 
 message CreateUserGrpcRequest {
@@ -14,6 +15,8 @@ message CreateUserGrpcRequest {
   string password = 3;
 }
 
-message CreateUserGrpcResponse {
-  string message = 1;
+message UpdateUserGrpcRequest {
+  string id = 1;
+  string name = 2;
+  string email = 3;
 }

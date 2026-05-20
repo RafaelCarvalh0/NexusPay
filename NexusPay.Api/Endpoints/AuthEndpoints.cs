@@ -24,21 +24,21 @@ namespace NexusPay.Api.Endpoints
 
             }).AllowAnonymous().WithValidation<LoginRequest>();
 
-            group.MapPost("Logout", async (HttpContext context, [FromServices] IAuthGrpcClient authClient) =>
+            group.MapGet("Logout", async (HttpContext context, [FromServices] IAuthGrpcClient authClient) =>
             {
                 // Extract the JTI and User ID from the request
-                var jti = context.User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
-                var userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+                string? jti = context.User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                string? userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
                 if (string.IsNullOrWhiteSpace(jti) || string.IsNullOrWhiteSpace(userId))
                     return Results.BadRequest("Invalid session data.");
 
-                var response = await authClient.LogoutAsync(new LogoutRequest(
+                await authClient.LogoutAsync(new LogoutRequest(
                     Jti: jti,
                     UserId: userId
                 ));
 
-                return Results.Ok(new { response.Message });
+                return Results.Ok(new { Message = "Logout successful." });
 
             }).RequireAuthorization();
 

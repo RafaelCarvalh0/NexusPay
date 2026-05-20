@@ -1,15 +1,15 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
-using NexusPay.Contracts;
 using NexusPay.Data.Configuration;
 using NexusPay.Data.Helper;
+using NexusPay.Shared.Models.User;
 using System.Data;
 
 namespace NexusPay.Data.Repositories
 {
     public interface IUserRepository
     {
-        Task<CreateUserGrpcResponse> CreateUser(CreateUserGrpcRequest request);
+        Task CreateUser(CreateUserRequest request);
+        Task UpdateUser(string id, UpdateUserRequest request);
     }
 
     public class UserRepository : IUserRepository
@@ -20,7 +20,7 @@ namespace NexusPay.Data.Repositories
             _repo = universal;
         }
 
-        public async Task<CreateUserGrpcResponse> CreateUser(CreateUserGrpcRequest request)
+        public async Task CreateUser(CreateUserRequest request)
         {
             string hashedPassword = PasswordHelper.Hash(request.Password);
 
@@ -31,8 +31,17 @@ namespace NexusPay.Data.Repositories
                 new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.VarChar },
                 new SqlParameter() { ParameterName = "@HASHED_PASSWORD", Value = hashedPassword, SqlDbType = SqlDbType.VarChar }
             );
+        }
 
-            return new CreateUserGrpcResponse { Message = "User created successfully" };
+        public async Task UpdateUser(string id, UpdateUserRequest request)
+        {
+            await _repo.ExecuteNonQueryAsync(
+                command: "SP_UPDATE_USER",
+                type: CommandType.StoredProcedure,
+                new SqlParameter() { ParameterName = "@ID", Value = id, SqlDbType = SqlDbType.VarChar },
+                new SqlParameter() { ParameterName = "@NAME", Value = request.Name, SqlDbType = SqlDbType.VarChar },
+                new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.VarChar }
+            );
         }
     }
 }
