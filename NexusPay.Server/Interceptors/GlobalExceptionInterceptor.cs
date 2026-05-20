@@ -1,5 +1,6 @@
 ﻿using Grpc.Core;
 using Grpc.Core.Interceptors;
+using Microsoft.Data.SqlClient;
 
 namespace NexusPay.Server.Interceptors
 {
@@ -18,9 +19,17 @@ namespace NexusPay.Server.Interceptors
             {
                 return await continuation(request, context);
             }
-            catch (RpcException)
+            catch (RpcException ex)
             {
+                _logger.LogError(ex, "gRPC method {Method} threw an RpcException", context.Method);
+
                 throw;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "gRPC method {Method} threw a SqlException", context.Method);
+
+                throw new RpcException(new Status(StatusCode.AlreadyExists, ex.Message));
             }
             catch (Exception ex)
             {

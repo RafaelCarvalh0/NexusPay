@@ -9,6 +9,7 @@ using NexusPay.Shared.Models.Auth.Validators;
 using NexusPay.Shared.Models.Jwt;
 using NexusPay.Shared.Models.User;
 using NexusPay.Shared.Models.User.Validators;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 namespace NexusPay.Api.Extensions
@@ -52,12 +53,12 @@ namespace NexusPay.Api.Extensions
             private IServiceCollection AddAuthConfiguration(IConfiguration jwtConfiguration)
             {
                 services.Configure<JwtSettings>(jwtConfiguration);
-
                 JwtSettings jwtSettings = jwtConfiguration.Get<JwtSettings>()!;
 
                 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
+                        options.MapInboundClaims = false;
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             ValidateIssuer = true,

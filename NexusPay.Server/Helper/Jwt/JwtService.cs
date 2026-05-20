@@ -6,14 +6,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace NexusPay.Server.Helper
+namespace NexusPay.Server.Helper.Jwt
 {
-    public interface IJwtService
-    {
-        JwtSecurityToken GenerateToken(AuthClaims claims);
-        string WriteToken(JwtSecurityToken jwt);
-    }
-
     public class JwtService : IJwtService
     {
         private static readonly JwtSecurityTokenHandler _tokenHandler = new();
@@ -31,9 +25,9 @@ namespace NexusPay.Server.Helper
 
             var claims = new[]
             {
-                new Claim("userId", authClaims.Id.ToString()),
-                new Claim("email", authClaims.Email),
-                new Claim("role", authClaims.Role),
+                new Claim(JwtRegisteredClaimNames.Sub, authClaims.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, authClaims.Email),
+                new Claim(ClaimTypes.Role, authClaims.Role),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

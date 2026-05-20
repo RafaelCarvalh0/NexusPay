@@ -1,4 +1,5 @@
 ﻿using NexusPay.Api.Endpoints;
+using NexusPay.Api.Middlewares;
 
 namespace NexusPay.Api.Extensions
 {
@@ -21,6 +22,7 @@ namespace NexusPay.Api.Extensions
                 app.UseExceptionHandler();
                 app.UseAuthentication();
                 app.UseAuthorization();
+                app.UseMiddleware<TokenValidationMiddleware>();
 
                 return app;
             }

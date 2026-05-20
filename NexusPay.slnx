@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/Database/" />
-  <Folder Name="/Database/Seeds/" />
+  <Folder Name="/Database/Seeds/">
+    <File Path="Database/Seeds/V1__DefaultUser.sql" />
+  </Folder>
   <Folder Name="/Database/StoredProcedures/">
     <File Path="Database/StoredProcedures/V1__SP_CREATE_USER.sql" />
     <File Path="Database/StoredProcedures/V1__SP_LOGIN_USER.sql" />

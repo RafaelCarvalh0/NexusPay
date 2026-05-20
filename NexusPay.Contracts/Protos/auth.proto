@@ -7,6 +7,7 @@ package auth;
 service AuthService {
   rpc Login  (LoginGrpcRequest)  returns (LoginGrpcResponse);
   rpc Logout (LogoutGrpcRequest) returns (LogoutGrpcResponse);
+  rpc IsTokenRevoked  (IsTokenRevokedGrpcRequest)  returns (IsTokenRevokedGrpcResponse);
 }
 
 message LoginGrpcRequest {
@@ -24,9 +25,18 @@ message LoginGrpcResponse {
 }
 
 message LogoutGrpcRequest {
-  string id = 1;
+  string jti = 1;
+  string user_id = 2;
 }
 
 message LogoutGrpcResponse {
   string message = 1;
+}
+
+message IsTokenRevokedGrpcRequest {
+  string jti = 1;
+}
+
+message IsTokenRevokedGrpcResponse {
+  bool is_revoked = 1;
 }

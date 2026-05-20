@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using NexusPay.Contracts;
 using NexusPay.Shared.Models.Auth;
-using NexusPay.Shared.Models.Auth.Claims;
 
 namespace NexusPay.Client.Services
 {
@@ -10,6 +9,7 @@ namespace NexusPay.Client.Services
     {
         Task<LoginResponse> LoginAsync(LoginRequest request);
         Task<LogoutResponse> LogoutAsync(LogoutRequest request);
+        Task<bool> IsTokenRevokedAsync(string jti);
     }
 
     public class AuthGrpcClient : IAuthGrpcClient
@@ -43,10 +43,19 @@ namespace NexusPay.Client.Services
         {
             LogoutGrpcResponse response = await _client.LogoutAsync(new LogoutGrpcRequest
             {
-                Id = request.Id.ToString()
+                Jti = request.Jti,
+                UserId = request.UserId
             });
 
-            return new LogoutResponse(response.Message);   
+            return new LogoutResponse(response.Message);
+        }
+
+        public async Task<bool> IsTokenRevokedAsync(string jti)
+        {
+            IsTokenRevokedGrpcResponse response = await _client.IsTokenRevokedAsync(
+                new IsTokenRevokedGrpcRequest { Jti = jti });
+
+            return response.IsRevoked;
         }
     }
 }

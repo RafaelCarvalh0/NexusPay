@@ -1,8 +1,10 @@
 ﻿using NexusPay.Data.Configuration;
 using NexusPay.Data.Repositories;
-using NexusPay.Server.Helper;
+using NexusPay.Server.Helper.Jwt;
+using NexusPay.Server.Helper.Redis;
 using NexusPay.Server.Interceptors;
 using NexusPay.Shared.Models.Jwt;
+using StackExchange.Redis;
 
 namespace NexusPay.Server.Extensions
 {
@@ -11,14 +13,12 @@ namespace NexusPay.Server.Extensions
         extension(IServiceCollection services)
         {
             public IServiceCollection ApplyConfigurations(IConfiguration configuration)
-            {
-                string connectionString = configuration.GetConnectionString("SQL") ?? throw new InvalidOperationException("Connection string 'SQL' not found.");
-
+            {            
                 services
                     .AddServices(configuration.GetSection("Jwt"))
                     .AddGlobalException()
                     .AddRepositories()
-                    .AddInfrasctructure(connectionString);
+                    .AddInfrasctructure(configuration);
 
                 return services;
             }
@@ -48,13 +48,21 @@ namespace NexusPay.Server.Extensions
                 return services;
             }
 
-            private IServiceCollection AddInfrasctructure(string connectionString)
+            private IServiceCollection AddInfrasctructure(IConfiguration configuration)
             {
+                var connectionString = configuration.GetConnectionString("SQL") ?? throw new InvalidOperationException("Connection string 'SQL' not found.");
+                var redisConnectionString = configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException("Connection string 'Redis' not found.");
+
                 services.AddTransient<IUniversal, Universal>(provider =>
                 {
                     var logger = provider.GetRequiredService<ILogger<Universal>>();
                     return new Universal(connectionString, logger);
                 });
+
+                services.AddSingleton<IConnectionMultiplexer>(
+                    ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
+
+                services.AddScoped<IRedisService, RedisService>();
 
                 return services;
             }

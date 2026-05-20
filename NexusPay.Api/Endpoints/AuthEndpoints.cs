@@ -2,6 +2,7 @@
 using NexusPay.Api.Extensions;
 using NexusPay.Client.Services;
 using NexusPay.Shared.Models.Auth;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace NexusPay.Api.Endpoints
 {
@@ -16,17 +17,28 @@ namespace NexusPay.Api.Endpoints
 
         private static RouteGroupBuilder MapAuthGroup(this RouteGroupBuilder group)
         {
-            group.MapPost("Login", async ([FromBody] LoginRequest request, [FromServices] IAuthGrpcClient service) =>
+            group.MapPost("Login", async ([FromBody] LoginRequest request, [FromServices] IAuthGrpcClient authClient) =>
             {
-                LoginResponse response = await service.LoginAsync(request);
+                LoginResponse response = await authClient.LoginAsync(request);
                 return Results.Ok(response);
 
             }).AllowAnonymous().WithValidation<LoginRequest>();
 
-            group.MapPost("Logout", async ([FromBody] LogoutRequest request, [FromServices] IAuthGrpcClient service) =>
+            group.MapPost("Logout", async (HttpContext context, [FromServices] IAuthGrpcClient authClient) =>
             {
-                await service.LogoutAsync(request);
-                return Results.Ok();
+                // Extract the JTI and User ID from the request
+                var jti = context.User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                var userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+                if (string.IsNullOrWhiteSpace(jti) || string.IsNullOrWhiteSpace(userId))
+                    return Results.BadRequest("Invalid session data.");
+
+                var response = await authClient.LogoutAsync(new LogoutRequest(
+                    Jti: jti,
+                    UserId: userId
+                ));
+
+                return Results.Ok(new { response.Message });
 
             }).RequireAuthorization();
 
