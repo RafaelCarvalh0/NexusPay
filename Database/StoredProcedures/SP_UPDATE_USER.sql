@@ -1,7 +1,7 @@
 USE [NexusPay]
 GO
 
-/****** Object:  StoredProcedure [dbo].[SP_UPDATE_USER]    Script Date: 5/20/2026 6:05:56 PM ******/
+/****** Object:  StoredProcedure [dbo].[SP_UPDATE_USER]    Script Date: 5/22/2026 2:39:15 PM ******/
 SET ANSI_NULLS ON
 GO
 

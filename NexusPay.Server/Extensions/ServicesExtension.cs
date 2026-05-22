@@ -60,7 +60,7 @@ namespace NexusPay.Server.Extensions
                 });
 
                 services.AddSingleton<IConnectionMultiplexer>(
-                    ConnectionMultiplexer.Connect(configuration.GetConnectionString("Redis")!));
+                    ConnectionMultiplexer.Connect(redisConnectionString));
 
                 services.AddScoped<IRedisService, RedisService>();
 

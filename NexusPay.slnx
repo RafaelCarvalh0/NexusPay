@@ -1,7 +1,8 @@
 <Solution>
   <Folder Name="/Database/" />
   <Folder Name="/Database/Seeds/">
-    <File Path="Database/Seeds/DefaultUser.sql" />
+    <File Path="Database/Seeds/ADMIN_USER.sql" />
+    <File Path="Database/Seeds/ROLES_SEEDS.sql" />
   </Folder>
   <Folder Name="/Database/StoredProcedures/">
     <File Path="Database/StoredProcedures/SP_CREATE_USER.sql" />
@@ -9,6 +10,7 @@
     <File Path="Database/StoredProcedures/SP_UPDATE_USER.sql" />
   </Folder>
   <Folder Name="/Database/Tables/">
+    <File Path="Database/Tables/ROLES.sql" />
     <File Path="Database/Tables/Users.sql" />
   </Folder>
   <Folder Name="/gRPC/">

@@ -25,7 +25,8 @@ namespace NexusPay.Client.Services
             {
                 Name = request.Name,
                 Email = request.Email,
-                Password = request.Password
+                Password = request.Password,
+                RoleId = request.RoleId
             });
         }
 

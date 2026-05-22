@@ -34,7 +34,8 @@ namespace NexusPay.Server.Services
             (
                 Name: request.Name,
                 Email: request.Email,
-                Password: request.Password
+                Password: request.Password,
+                RoleId: request.RoleId
             ));
 
             return new Empty();

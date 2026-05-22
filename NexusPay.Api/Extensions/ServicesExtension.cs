@@ -72,7 +72,13 @@ namespace NexusPay.Api.Extensions
                         };
                     });
 
-                services.AddAuthorization();
+                services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("Admin", policy =>
+                    {
+                        policy.RequireRole("Admin");
+                    });
+                });
 
                 return services;
             }

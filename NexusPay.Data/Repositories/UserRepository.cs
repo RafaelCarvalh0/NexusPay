@@ -29,7 +29,8 @@ namespace NexusPay.Data.Repositories
                 type: CommandType.StoredProcedure,
                 new SqlParameter() { ParameterName = "@NAME", Value = request.Name, SqlDbType = SqlDbType.VarChar },
                 new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.VarChar },
-                new SqlParameter() { ParameterName = "@HASHED_PASSWORD", Value = hashedPassword, SqlDbType = SqlDbType.VarChar }
+                new SqlParameter() { ParameterName = "@HASHED_PASSWORD", Value = hashedPassword, SqlDbType = SqlDbType.VarChar },
+                new SqlParameter() { ParameterName = "@ROLE_ID", Value = request.RoleId, SqlDbType = SqlDbType.Int }
             );
         }
 

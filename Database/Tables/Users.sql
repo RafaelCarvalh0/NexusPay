@@ -1,7 +1,7 @@
 USE [NexusPay]
 GO
 
-/****** Object:  Table [dbo].[USERS]    Script Date: 5/20/2026 8:13:41 AM ******/
+/****** Object:  Table [dbo].[USERS]    Script Date: 5/22/2026 2:40:34 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -13,6 +13,7 @@ CREATE TABLE [dbo].[USERS](
 	[Name] [nvarchar](100) NOT NULL,
 	[Email] [nvarchar](100) NOT NULL,
 	[PasswordHash] [nvarchar](255) NOT NULL,
+	[RoleId] [int] NOT NULL,
 	[CreatedAt] [datetime2](7) NOT NULL,
 	[IsActive] [bit] NOT NULL,
  CONSTRAINT [PK_Users] PRIMARY KEY CLUSTERED 
@@ -22,13 +23,20 @@ CREATE TABLE [dbo].[USERS](
 ) ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[USERS] ADD  DEFAULT (newsequentialid()) FOR [Id]
+ALTER TABLE [dbo].[USERS] ADD  CONSTRAINT [DF__Users__Id__37A5467C]  DEFAULT (newsequentialid()) FOR [Id]
 GO
 
-ALTER TABLE [dbo].[USERS] ADD  DEFAULT (getutcdate()) FOR [CreatedAt]
+ALTER TABLE [dbo].[USERS] ADD  CONSTRAINT [DF__Users__CreatedAt__38996AB5]  DEFAULT (getutcdate()) FOR [CreatedAt]
 GO
 
-ALTER TABLE [dbo].[USERS] ADD  DEFAULT ((1)) FOR [IsActive]
+ALTER TABLE [dbo].[USERS] ADD  CONSTRAINT [DF__Users__IsActive__398D8EEE]  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[USERS]  WITH CHECK ADD  CONSTRAINT [FK_USERS_ROLES] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[ROLES] ([Id])
+GO
+
+ALTER TABLE [dbo].[USERS] CHECK CONSTRAINT [FK_USERS_ROLES]
 GO
 
 

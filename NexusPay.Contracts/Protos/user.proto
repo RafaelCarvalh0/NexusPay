@@ -13,6 +13,7 @@ message CreateUserGrpcRequest {
   string name = 1;
   string email = 2;
   string password = 3;
+  int32 roleId = 4;
 }
 
 message UpdateUserGrpcRequest {

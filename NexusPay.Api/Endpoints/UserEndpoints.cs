@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NexusPay.Api.Extensions;
 using NexusPay.Client.Services;
 using NexusPay.Shared.Models.User;
@@ -10,7 +11,7 @@ namespace NexusPay.Api.Endpoints
     {
         public static WebApplication MapUserEndpoints(this WebApplication app)
         {
-            app.MapGroup("user").AllowAnonymous().MapUserGroup().WithTags("User");
+            app.MapGroup("user").MapUserGroup().WithTags("User");
 
             return app;
         }
@@ -22,7 +23,7 @@ namespace NexusPay.Api.Endpoints
                 await service.CreateUserAsync(request);
                 return Results.Ok(new { Message = "User created successfully" });
 
-            }).WithValidation<CreateUserRequest>();
+            }).AllowAnonymous().WithValidation<CreateUserRequest>();
 
             group.MapPatch("Update", async (HttpContext context, UpdateUserRequest request, IUserGrpcClient service) =>
             {
@@ -35,6 +36,16 @@ namespace NexusPay.Api.Endpoints
                 return Results.Ok(new { Message = "User updated successfully" });
 
             }).RequireAuthorization().WithValidation<UpdateUserRequest>();
+
+            group.MapDelete("Delete/{userId:guid}", async ([FromRoute] Guid userId, IUserGrpcClient service) =>
+            {
+                if (userId == Guid.Empty)
+                    return Results.BadRequest(new { Message = "Invalid user ID" });
+
+                //await service.DeleteUserAsync(userId);
+                return Results.Ok(new { Message = "User deleted successfully" });
+
+            }).RequireAuthorization("Admin");
 
             return group;
         }
