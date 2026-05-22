@@ -29,7 +29,12 @@ namespace NexusPay.Server.Interceptors
             {
                 _logger.LogError(ex, "gRPC method {Method} threw a SqlException", context.Method);
 
-                throw new RpcException(new Status(StatusCode.AlreadyExists, ex.Message));
+                throw ex.Number switch
+                {
+                    99999 => new RpcException(new Status(StatusCode.AlreadyExists, ex.Message)),
+                    99998 => new RpcException(new Status(StatusCode.NotFound, ex.Message)),
+                    _ => new RpcException(new Status(StatusCode.Internal, "Database operation failed."))
+                };
             }
             catch (Exception ex)
             {

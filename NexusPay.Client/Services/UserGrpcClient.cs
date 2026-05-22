@@ -8,6 +8,7 @@ namespace NexusPay.Client.Services
     public interface IUserGrpcClient
     {
         Task CreateUserAsync(CreateUserRequest request);
+        Task DeleteUserAsync(Guid userId);
         Task UpdateUserAsync(string id, UpdateUserRequest request);
     }
 
@@ -27,6 +28,14 @@ namespace NexusPay.Client.Services
                 Email = request.Email,
                 Password = request.Password,
                 RoleId = request.RoleId
+            });
+        }
+
+        public async Task DeleteUserAsync(Guid userId)
+        {
+            await _client.DeleteUserAsync(new DeleteUserGrpcRequest
+            {
+                Id = userId.ToString()
             });
         }
 

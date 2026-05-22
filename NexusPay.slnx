@@ -6,6 +6,7 @@
   </Folder>
   <Folder Name="/Database/StoredProcedures/">
     <File Path="Database/StoredProcedures/SP_CREATE_USER.sql" />
+    <File Path="Database/StoredProcedures/SP_DELETE_USER.sql" />
     <File Path="Database/StoredProcedures/SP_LOGIN_USER.sql" />
     <File Path="Database/StoredProcedures/SP_UPDATE_USER.sql" />
   </Folder>

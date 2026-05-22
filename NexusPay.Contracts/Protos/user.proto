@@ -7,6 +7,7 @@ package user;
 service UserService {
   rpc CreateUser (CreateUserGrpcRequest) returns (google.protobuf.Empty);
   rpc UpdateUser (UpdateUserGrpcRequest) returns (google.protobuf.Empty);
+  rpc DeleteUser (DeleteUserGrpcRequest) returns (google.protobuf.Empty);
 }
 
 message CreateUserGrpcRequest {
@@ -20,4 +21,8 @@ message UpdateUserGrpcRequest {
   string id = 1;
   string name = 2;
   string email = 3;
+}
+
+message DeleteUserGrpcRequest {
+  string id = 1;
 }

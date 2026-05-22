@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using NexusPay.Api.Extensions;
 using NexusPay.Client.Services;
 using NexusPay.Shared.Models.User;
@@ -42,7 +41,7 @@ namespace NexusPay.Api.Endpoints
                 if (userId == Guid.Empty)
                     return Results.BadRequest(new { Message = "Invalid user ID" });
 
-                //await service.DeleteUserAsync(userId);
+                await service.DeleteUserAsync(userId);
                 return Results.Ok(new { Message = "User deleted successfully" });
 
             }).RequireAuthorization("Admin");

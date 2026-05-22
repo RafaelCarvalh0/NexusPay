@@ -9,6 +9,7 @@ namespace NexusPay.Data.Repositories
     public interface IUserRepository
     {
         Task CreateUser(CreateUserRequest request);
+        Task DeleteUser(Guid id);
         Task UpdateUser(string id, UpdateUserRequest request);
     }
 
@@ -31,6 +32,15 @@ namespace NexusPay.Data.Repositories
                 new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.VarChar },
                 new SqlParameter() { ParameterName = "@HASHED_PASSWORD", Value = hashedPassword, SqlDbType = SqlDbType.VarChar },
                 new SqlParameter() { ParameterName = "@ROLE_ID", Value = request.RoleId, SqlDbType = SqlDbType.Int }
+            );
+        }
+
+        public async Task DeleteUser(Guid id)
+        {
+            await _repo.ExecuteNonQueryAsync(
+                command: "SP_DELETE_USER",
+                type: CommandType.StoredProcedure,
+                new SqlParameter() { ParameterName = "@ID", Value = id, SqlDbType = SqlDbType.UniqueIdentifier }
             );
         }
 

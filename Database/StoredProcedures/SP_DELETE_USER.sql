@@ -1,0 +1,29 @@
+USE [NexusPay]
+GO
+
+/****** Object:  StoredProcedure [dbo].[SP_UPDATE_USER]    Script Date: 5/22/2026 3:05:11 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- AUTHOR:      RAFAEL HENRIQUE DE CARVALHO
+-- CREATE DATE: 05/22/2026
+-- DESCRIPTION: DELETE AN USER INTO THE USERS TABLE
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[SP_DELETE_USER]
+    @ID NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+	IF NOT EXISTS (SELECT 1 FROM USERS WHERE ID = @ID AND ISACTIVE = 1)
+		THROW 99998, 'User not found.', 1;
+
+	UPDATE USERS SET ISACTIVE = 0 WHERE ID = @ID
+END
+GO
+
+

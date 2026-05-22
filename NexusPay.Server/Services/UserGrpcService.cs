@@ -59,5 +59,20 @@ namespace NexusPay.Server.Services
 
             return new Empty();
         }
+
+        public override async Task<Empty> DeleteUser(DeleteUserGrpcRequest request, ServerCallContext context)
+        {
+            _logger.LogInformation("Received DeleteUser request for user ID: {UserId}", request.Id);
+
+            if (string.IsNullOrWhiteSpace(request.Id))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "User ID is required"));
+
+            if (!Guid.TryParse(request.Id, out Guid id))
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid user ID format"));
+
+            await _userRepository.DeleteUser(id);
+
+            return new Empty();
+        }
     }
 }
