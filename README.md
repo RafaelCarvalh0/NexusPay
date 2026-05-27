@@ -1,3 +1,5 @@
+🌐 [English version](README.en.md)
+
 # NexusPay 💳
 
 > Plataforma de pagamentos de alta performance construída com arquitetura orientada a serviços, comunicação via gRPC, autenticação JWT e gerenciamento de sessão via Redis.
