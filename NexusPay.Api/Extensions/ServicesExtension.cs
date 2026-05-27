@@ -39,7 +39,7 @@ namespace NexusPay.Api.Extensions
                         policy.WithOrigins(
                                   "https://nexuspay.com.br",       // prod
                                   "http://localhost:3000",          // frontend dev
-                                  "http://localhost:5173"           // vite dev
+                                  "http://127.0.0.1:5500"          
                               )
                               .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
                               .WithHeaders("Content-Type", "Authorization");
@@ -87,6 +87,8 @@ namespace NexusPay.Api.Extensions
             {
                 services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
                 services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
+                services.AddScoped<IValidator<ForgotPasswordRequest>, ForgotPasswordRequestValidator>();
+                services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordRequestValidator>();
 
                 return services;
             }

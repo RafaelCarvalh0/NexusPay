@@ -1,5 +1,6 @@
 ﻿using Grpc.Core;
 using Grpc.Core.Interceptors;
+using MailKit.Net.Smtp;
 using Microsoft.Data.SqlClient;
 
 namespace NexusPay.Server.Interceptors
@@ -22,27 +23,28 @@ namespace NexusPay.Server.Interceptors
             catch (RpcException ex)
             {
                 _logger.LogError(ex, "gRPC method {Method} threw an RpcException", context.Method);
-
                 throw;
             }
             catch (SqlException ex)
             {
                 _logger.LogError(ex, "gRPC method {Method} threw a SqlException", context.Method);
-
                 throw ex.Number switch
                 {
                     99999 => new RpcException(new Status(StatusCode.AlreadyExists, ex.Message)),
                     99998 => new RpcException(new Status(StatusCode.NotFound, ex.Message)),
+                    99997 => new RpcException(new Status(StatusCode.Internal, ex.Message)),
                     _ => new RpcException(new Status(StatusCode.Internal, "Database operation failed."))
                 };
+            }
+            catch (Exception ex) when (ex is SmtpCommandException || ex is SmtpProtocolException)
+            {
+                _logger.LogError(ex, "gRPC method {Method} threw an SmtpCommandException", context.Method);
+                throw new RpcException(new Status(StatusCode.Internal, "Email sending failed."));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception in gRPC method {Method}", context.Method);
-
-                throw new RpcException(new Status(
-                    StatusCode.Internal,
-                    "An unexpected error occurred."));
+                throw new RpcException(new Status(StatusCode.Internal, "An unexpected error occurred."));
             }
         }
     }

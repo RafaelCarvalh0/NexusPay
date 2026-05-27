@@ -29,9 +29,9 @@ Cliente HTTP
          ▼
 ┌─────────────────────┐
 │  NexusPay.Server    │  Serviços gRPC internos
-│  (gRPC :7199)       │
+│  (gRPC :7199)       │  + MailKit (SMTP)
 └────────┬────────────┘
-         │ ADO.NET + Stored Procedures     Redis (Sessões)
+         │ ADO.NET + Stored Procedures     Redis (Sessões + Reset Tokens)
          ▼                                      │
 ┌─────────────────────┐             ┌───────────┴──────────┐
 │   SQL Server        │             │   Redis              │
@@ -46,7 +46,7 @@ Cliente HTTP
 | `NexusPay.Api` | API REST — endpoints, autenticação, validação |
 | `NexusPay.Client` | gRPC clients consumidos pela API |
 | `NexusPay.Contracts` | Contratos Protobuf (`.proto`) compartilhados |
-| `NexusPay.Server` | Serviços gRPC — lógica de negócio |
+| `NexusPay.Server` | Serviços gRPC — lógica de negócio + envio de e-mail |
 | `NexusPay.Data` | Acesso a dados via ADO.NET + Stored Procedures |
 | `NexusPay.Shared` | Models, helpers e extensões compartilhadas |
 
@@ -62,7 +62,8 @@ Cliente HTTP
 - **FluentValidation** — Validação de entrada declarativa
 - **BCrypt.Net** — Hash seguro de senhas
 - **JWT Bearer** — Autenticação stateless
-- **Redis** — Gerenciamento de sessão e blacklist de tokens
+- **Redis** — Gerenciamento de sessão, blacklist de tokens e reset tokens
+- **MailKit** — Envio de e-mails transacionais via SMTP
 - **Scalar / OpenAPI** — Documentação interativa de endpoints
 - **Docker** — Containerização do banco de dados, Redis e CloudBeaver
 - **CloudBeaver** — Interface web para gerenciamento do banco
@@ -112,7 +113,7 @@ Execute todos os arquivos da pasta `Database/` na seguinte ordem:
 
 1. `Tables/`
 2. `StoredProcedures/`
-3. `Seeds/Development/` ← apenas em desenvolvimento
+3. `Seeds/` ← seeds de roles obrigatórias + usuário admin para desenvolvimento
 
 ### 5. Configure o ambiente
 
@@ -129,11 +130,20 @@ Verifique os `appsettings.json` de `NexusPay.Api` e `NexusPay.Server`:
     "Audience": "NexusPayUsers",
     "Key": "sua-chave-secreta-minimo-32-caracteres",
     "ExpirationMinutes": 60
-  }
+  },
+  "Smtp": {
+    "Host": "smtp.gmail.com",
+    "Port": "587",
+    "FromEmail": "seu-email@gmail.com",
+    "Password": "sua-senha-de-app",
+    "FromName": "NexusPay"
+  },
+  "FrontendUrl": "http://localhost:5500"
 }
 ```
 
-> ⚠️ A `Key` JWT deve ser **idêntica** nos dois projetos.
+> ⚠️ A `Key` JWT deve ser **idêntica** nos dois projetos.  
+> ⚠️ Para o Gmail, utilize uma **App Password** — não a senha da conta.
 
 ### 6. Rode os projetos
 
@@ -163,6 +173,12 @@ Authorization: Bearer {token}
 - **Logout** — invalida o token imediatamente no Redis, independente do tempo de expiração
 - **Token revogado** — qualquer requisição com token inválido retorna `401 Unauthorized`
 
+### Fluxo de recuperação de senha
+
+1. `POST /auth/forgot-password` — envia e-mail com link de redefinição contendo um token com expiração de **1 minuto**
+2. Usuário clica no link e é direcionado ao frontend (`/reset-password.html`)
+3. `POST /auth/reset-password` — valida o token no Redis e atualiza a senha com BCrypt
+
 ### Endpoints de autenticação
 
 **Login:**
@@ -171,8 +187,8 @@ POST /auth/login
 Content-Type: application/json
 
 {
-  "email": "default.user@gmail.com",
-  "password": "1234"
+  "email": "admin@nexuspay.com",
+  "password": "sua-senha"
 }
 ```
 
@@ -183,23 +199,54 @@ Content-Type: application/json
   "tokenType": "Bearer",
   "expiresIn": 3600,
   "userId": "6b6e433e-...",
-  "userName": "Default User",
-  "role": "User"
+  "userName": "Admin",
+  "role": "Admin"
+}
+```
+
+**Forgot Password:**
+```http
+POST /auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "usuario@exemplo.com"
+}
+```
+
+**Reset Password:**
+```http
+POST /auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "usuario@exemplo.com",
+  "token": "token-recebido-por-email",
+  "newPassword": "nova-senha"
 }
 ```
 
 **Logout:**
 ```http
-POST /auth/logout
+GET /auth/logout
 Authorization: Bearer {token}
 ```
 
-### Credenciais do usuário default (desenvolvimento)
+### Credenciais do usuário admin (desenvolvimento)
 
 | Campo | Valor |
 |---|---|
-| Email | `default.user@gmail.com` |
+| Email | `admin@nexuspay.com` |
 | Senha | `1234` |
+
+---
+
+## Autorização por Roles
+
+| Role | Acesso |
+|---|---|
+| `Admin` | Todos os endpoints, incluindo exclusão de usuários |
+| `User` | Endpoints próprios — login, logout, update do próprio perfil |
 
 ---
 
@@ -208,9 +255,12 @@ Authorization: Bearer {token}
 ```
 Database/
 ├── Tables/
+│     ├── ROLES.sql
+│     └── USERS.sql
 ├── StoredProcedures/
 └── Seeds/
-      └── Development/
+      ├── ROLES_SEEDS.sql   ← roles obrigatórias
+      └── ADMIN_USER.sql    ← usuário admin para desenvolvimento
 ```
 
 > Scripts versionados com prefixo `V{n}__` — nunca edite um script já commitado, sempre crie uma nova versão.
@@ -223,7 +273,9 @@ Database/
 - Tokens JWT com expiração configurável e `ClockSkew = Zero`
 - **Sessão única por usuário** — novo login invalida automaticamente a sessão anterior
 - **Blacklist de tokens no Redis** — invalidação imediata no logout, TTL automático
+- **Reset tokens no Redis** — expiração de 1 minuto para recuperação de senha
 - **TokenValidationMiddleware** — verifica blacklist do Redis em toda requisição autenticada
+- **Roles** — controle de acesso por perfil (`Admin`, `User`)
 - CORS configurado por origem explícita
 - Validação de entrada em todas as rotas via FluentValidation
 - Erros internos nunca expostos ao cliente — tratados pelo `GlobalExceptionHandler`

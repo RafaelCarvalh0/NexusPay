@@ -1,13 +1,15 @@
 ﻿syntax = "proto3";
-
+import "google/protobuf/empty.proto";
 option csharp_namespace = "NexusPay.Contracts";
 
 package auth;
 
 service AuthService {
-  rpc Login  (LoginGrpcRequest)  returns (LoginGrpcResponse);
-  rpc Logout (LogoutGrpcRequest) returns (LogoutGrpcResponse);
-  rpc IsTokenRevoked  (IsTokenRevokedGrpcRequest)  returns (IsTokenRevokedGrpcResponse);
+  rpc Login (LoginGrpcRequest)  returns (LoginGrpcResponse);
+  rpc ForgotPassword (ForgotPasswordGrpcRequest) returns (google.protobuf.Empty);
+  rpc ResetPassword (ResetPasswordGrpcRequest) returns (google.protobuf.Empty);
+  rpc Logout (LogoutGrpcRequest) returns (google.protobuf.Empty);
+  rpc IsTokenRevoked (IsTokenRevokedGrpcRequest)  returns (IsTokenRevokedGrpcResponse);
 }
 
 message LoginGrpcRequest {
@@ -24,13 +26,19 @@ message LoginGrpcResponse {
   string role       = 6;
 }
 
+message ForgotPasswordGrpcRequest {
+  string email = 1;
+}
+
+message ResetPasswordGrpcRequest {
+  string email = 1;
+  string token = 2;
+  string new_password = 3;
+}
+
 message LogoutGrpcRequest {
   string jti = 1;
   string user_id = 2;
-}
-
-message LogoutGrpcResponse {
-  string message = 1;
 }
 
 message IsTokenRevokedGrpcRequest {

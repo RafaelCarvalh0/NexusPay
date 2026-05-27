@@ -11,6 +11,15 @@ namespace NexusPay.Server.Helper.Redis
             _db = redis.GetDatabase();
         }
 
+        public async Task SetStringAsync(string key, string value, TimeSpan expiration)
+            => await _db.StringSetAsync(key, value, expiration);
+
+        public async Task<string?> GetStringAsync(string key)
+            => await _db.StringGetAsync(key);
+
+        public async Task<bool> DeleteKeyAsync(string key)
+            => await _db.KeyDeleteAsync(key);
+
         // Saves the JTI as the user's active session
         public async Task SaveActiveSessionAsync(string userId, string jti, TimeSpan expiration)
             => await _db.StringSetAsync($"active_session:{userId}", jti, expiration);

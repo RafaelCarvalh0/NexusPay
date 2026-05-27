@@ -11,6 +11,7 @@ namespace NexusPay.Data.Repositories
     public interface IAuthRepository
     {
         Task<AuthClaims> Login(LoginRequest request);
+        Task ResetPassword(ResetPasswordRequest resetPasswordRequest);
     }
 
     public class AuthRepository : IAuthRepository
@@ -36,6 +37,16 @@ namespace NexusPay.Data.Repositories
                 throw new RpcException(new Status(StatusCode.Unauthenticated, "Invalid password."));
 
             return AuthClaims.FromDataRow(result);
+        }
+
+        public async Task ResetPassword(ResetPasswordRequest resetPasswordRequest)
+        {
+            await _repo.ExecuteNonQueryAsync(
+                command: "SP_RESET_PASSWORD",
+                type: CommandType.StoredProcedure,
+                new SqlParameter() { ParameterName = "@EMAIL", Value = resetPasswordRequest.Email, SqlDbType = SqlDbType.NVarChar },
+                new SqlParameter() { ParameterName = "@NEW_PASSWORD_HASH", Value = PasswordHelper.Hash(resetPasswordRequest.NewPassword), SqlDbType = SqlDbType.NVarChar }
+            );
         }
     }
 }

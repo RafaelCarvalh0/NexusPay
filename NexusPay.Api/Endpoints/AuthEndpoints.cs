@@ -24,6 +24,21 @@ namespace NexusPay.Api.Endpoints
 
             }).AllowAnonymous().WithValidation<LoginRequest>();
 
+            group.MapPost("ForgotPassword", async ([FromBody] ForgotPasswordRequest request, [FromServices] IAuthGrpcClient authClient) =>
+            {
+                await authClient.ForgotPasswordRequestAsync(request);
+
+                return Results.Ok(new { Message = "E-mail sent successfully." });
+
+            }).AllowAnonymous().WithValidation<ForgotPasswordRequest>();
+
+            group.MapPost("ResetPassword", async ([FromBody] ResetPasswordRequest request, [FromServices] IAuthGrpcClient authClient) =>
+            {
+                await authClient.ResetPasswordAsync(request);
+                return Results.Ok(new { Message = "Password has been reset successfully." });
+
+            }).AllowAnonymous().WithValidation<ResetPasswordRequest>();
+
             group.MapGet("Logout", async (HttpContext context, [FromServices] IAuthGrpcClient authClient) =>
             {
                 // Extract the JTI and User ID from the request

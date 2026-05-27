@@ -8,8 +8,10 @@ namespace NexusPay.Client.Services
     public interface IAuthGrpcClient
     {
         Task<LoginResponse> LoginAsync(LoginRequest request);
+        Task ForgotPasswordRequestAsync(ForgotPasswordRequest request);
         Task LogoutAsync(LogoutRequest request);
         Task<bool> IsTokenRevokedAsync(string jti);
+        Task ResetPasswordAsync(ResetPasswordRequest request);
     }
 
     public class AuthGrpcClient : IAuthGrpcClient
@@ -39,9 +41,27 @@ namespace NexusPay.Client.Services
             );
         }
 
+        public async Task ForgotPasswordRequestAsync(ForgotPasswordRequest request)
+        {
+            await _client.ForgotPasswordAsync(new ForgotPasswordGrpcRequest
+            {
+                Email = request.Email
+            });
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            await _client.ResetPasswordAsync(new ResetPasswordGrpcRequest
+            {
+                Email = request.Email,
+                Token = request.Token,
+                NewPassword = request.NewPassword
+            });
+        }
+
         public async Task LogoutAsync(LogoutRequest request)
         {
-            LogoutGrpcResponse response = await _client.LogoutAsync(new LogoutGrpcRequest
+            await _client.LogoutAsync(new LogoutGrpcRequest
             {
                 Jti = request.Jti,
                 UserId = request.UserId
