@@ -30,6 +30,15 @@ services:
         volumes:
             - cloudbeaver_data:/opt/cloudbeaver/workspace
 
+    frontend:
+        image: nginx:alpine
+        container_name: nexuspay-frontend
+        ports:
+            - "5500:80"
+        volumes:
+            - ./NexusPay.Templates:/usr/share/nginx/html:ro
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
 volumes:
     sqlserver_data:
     redis_data:

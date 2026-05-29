@@ -15,16 +15,16 @@ namespace NexusPay.Api.Endpoints
             return app;
         }
 
-        private static RouteGroupBuilder MapUserGroup(this RouteGroupBuilder group)
+        private static RouteGroupBuilder MapUserGroup(this RouteGroupBuilder route)
         {
-            group.MapPost("Create", async (CreateUserRequest request, IUserGrpcClient service) =>
+            route.MapPost("Create", async (CreateUserRequest request, IUserGrpcClient service) =>
             {
                 await service.CreateUserAsync(request);
                 return Results.Ok(new { Message = "User created successfully" });
 
             }).AllowAnonymous().WithValidation<CreateUserRequest>();
 
-            group.MapPatch("Update", async (HttpContext context, UpdateUserRequest request, IUserGrpcClient service) =>
+            route.MapPatch("Update", async (HttpContext context, UpdateUserRequest request, IUserGrpcClient service) =>
             {
                 string? userId = context.User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
 
@@ -36,7 +36,7 @@ namespace NexusPay.Api.Endpoints
 
             }).RequireAuthorization().WithValidation<UpdateUserRequest>();
 
-            group.MapDelete("Delete/{userId:guid}", async ([FromRoute] Guid userId, IUserGrpcClient service) =>
+            route.MapDelete("Delete/{userId:guid}", async ([FromRoute] Guid userId, IUserGrpcClient service) =>
             {
                 if (userId == Guid.Empty)
                     return Results.BadRequest(new { Message = "Invalid user ID" });
@@ -46,7 +46,7 @@ namespace NexusPay.Api.Endpoints
 
             }).RequireAuthorization("Admin");
 
-            return group;
+            return route;
         }
     }
 }

@@ -15,16 +15,16 @@ namespace NexusPay.Api.Endpoints
             return app;
         }
 
-        private static RouteGroupBuilder MapAuthGroup(this RouteGroupBuilder group)
+        private static RouteGroupBuilder MapAuthGroup(this RouteGroupBuilder route)
         {
-            group.MapPost("Login", async ([FromBody] LoginRequest request, [FromServices] IAuthGrpcClient authClient) =>
+            route.MapPost("Login", async ([FromBody] LoginRequest request, [FromServices] IAuthGrpcClient authClient) =>
             {
                 LoginResponse response = await authClient.LoginAsync(request);
                 return Results.Ok(response);
 
             }).AllowAnonymous().WithValidation<LoginRequest>();
 
-            group.MapPost("ForgotPassword", async ([FromBody] ForgotPasswordRequest request, [FromServices] IAuthGrpcClient authClient) =>
+            route.MapPost("ForgotPassword", async ([FromBody] ForgotPasswordRequest request, [FromServices] IAuthGrpcClient authClient) =>
             {
                 await authClient.ForgotPasswordRequestAsync(request);
 
@@ -32,14 +32,14 @@ namespace NexusPay.Api.Endpoints
 
             }).AllowAnonymous().WithValidation<ForgotPasswordRequest>();
 
-            group.MapPost("ResetPassword", async ([FromBody] ResetPasswordRequest request, [FromServices] IAuthGrpcClient authClient) =>
+            route.MapPost("ResetPassword", async ([FromBody] ResetPasswordRequest request, [FromServices] IAuthGrpcClient authClient) =>
             {
                 await authClient.ResetPasswordAsync(request);
                 return Results.Ok(new { Message = "Password has been reset successfully." });
 
             }).AllowAnonymous().WithValidation<ResetPasswordRequest>();
 
-            group.MapGet("Logout", async (HttpContext context, [FromServices] IAuthGrpcClient authClient) =>
+            route.MapGet("Logout", async (HttpContext context, [FromServices] IAuthGrpcClient authClient) =>
             {
                 // Extract the JTI and User ID from the request
                 string? jti = context.User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
@@ -57,7 +57,7 @@ namespace NexusPay.Api.Endpoints
 
             }).RequireAuthorization();
 
-            return group;
+            return route;
         }
     }
 }

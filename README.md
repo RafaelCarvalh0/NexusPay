@@ -39,6 +39,11 @@ Cliente HTTP
 │   SQL Server        │             │   Redis              │
 │   Docker (:1433)    │             │   Docker (:6379)     │
 └─────────────────────┘             └──────────────────────┘
+
+┌─────────────────────┐
+│   Nginx             │  Templates HTML estáticos
+│   Docker (:5500)    │  (reset-password.html)
+└─────────────────────┘
 ```
 
 ### Projetos
@@ -51,6 +56,7 @@ Cliente HTTP
 | `NexusPay.Server` | Serviços gRPC — lógica de negócio + envio de e-mail |
 | `NexusPay.Data` | Acesso a dados via ADO.NET + Stored Procedures |
 | `NexusPay.Shared` | Models, helpers e extensões compartilhadas |
+| `NexusPay.Templates` | Templates HTML estáticos servidos via Nginx |
 
 ---
 
@@ -66,8 +72,9 @@ Cliente HTTP
 - **JWT Bearer** — Autenticação stateless
 - **Redis** — Gerenciamento de sessão, blacklist de tokens e reset tokens
 - **MailKit** — Envio de e-mails transacionais via SMTP
+- **Nginx** — Servidor de arquivos estáticos para templates HTML
 - **Scalar / OpenAPI** — Documentação interativa de endpoints
-- **Docker** — Containerização do banco de dados, Redis e CloudBeaver
+- **Docker** — Containerização completa (SQL Server, Redis, Nginx, CloudBeaver)
 - **CloudBeaver** — Interface web para gerenciamento do banco
 
 ---
@@ -94,7 +101,14 @@ cd nexuspay
 docker-compose up -d
 ```
 
-Isso sobe o **SQL Server**, **Redis** e **CloudBeaver** automaticamente.
+Isso sobe automaticamente:
+
+| Container | Endereço |
+|---|---|
+| SQL Server | `localhost:1433` |
+| Redis | `localhost:6379` |
+| CloudBeaver | `http://localhost:8978` |
+| Frontend (Nginx) | `http://localhost:5500` |
 
 ### 3. Configure a conexão no CloudBeaver
 
@@ -178,7 +192,7 @@ Authorization: Bearer {token}
 ### Fluxo de recuperação de senha
 
 1. `POST /auth/forgot-password` — envia e-mail com link de redefinição contendo um token com expiração de **1 minuto**
-2. Usuário clica no link e é direcionado ao frontend (`/reset-password.html`)
+2. Usuário clica no link e é direcionado ao frontend (`http://localhost:5500/reset-password.html`)
 3. `POST /auth/reset-password` — valida o token no Redis e atualiza a senha com BCrypt
 
 ### Endpoints de autenticação
@@ -252,17 +266,22 @@ Authorization: Bearer {token}
 
 ---
 
-## Estrutura do banco de dados
+## Estrutura do projeto
 
 ```
-Database/
-├── Tables/
-│     ├── ROLES.sql
-│     └── USERS.sql
-├── StoredProcedures/
-└── Seeds/
-      ├── ROLES_SEEDS.sql   ← roles obrigatórias
-      └── ADMIN_USER.sql    ← usuário admin para desenvolvimento
+NexusPay/
+├── docker-compose.yml
+├── nginx.conf                  ← configuração do servidor de templates
+├── Database/
+│     ├── Tables/
+│     │     ├── ROLES.sql
+│     │     └── USERS.sql
+│     ├── StoredProcedures/
+│     └── Seeds/
+│           ├── ROLES_SEEDS.sql   ← roles obrigatórias
+│           └── ADMIN_USER.sql    ← usuário admin para desenvolvimento
+└── NexusPay.Templates/
+      └── reset-password.html
 ```
 
 > Scripts versionados com prefixo `V{n}__` — nunca edite um script já commitado, sempre crie uma nova versão.
