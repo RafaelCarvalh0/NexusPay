@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# User secrets should not be committed to source control. Comment the next lines if you want to checkin user secrets, but sensitive information contained in these files will be unencrypted
+**/appsettings.json
+**/appsettings.Development.json

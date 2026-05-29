@@ -16,6 +16,7 @@
     <File Path="Database/Tables/Users.sql" />
   </Folder>
   <Folder Name="/gRPC/">
+    <File Path="NexusPay.Server/appsettings.Example.json" />
     <Project Path="NexusPay.Client/NexusPay.Client.csproj" Id="96fd9e48-12dc-459a-8fe2-a5e837b76eb4" />
     <Project Path="NexusPay.Contracts/NexusPay.Contracts.csproj" Id="d504f4a0-7a51-498a-9407-81b16d0b49d9" />
     <Project Path="NexusPay.Server/NexusPay.Server.csproj" Id="1610672f-096e-4953-b62d-7e5b41a0f546" />

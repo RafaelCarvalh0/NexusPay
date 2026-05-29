@@ -5,6 +5,14 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="appsettings.Example.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="appsettings.Example.json" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore" Version="2.76.0" />
