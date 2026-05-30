@@ -2,29 +2,18 @@
 using Microsoft.Data.SqlClient;
 using NexusPay.Data.Configuration;
 using NexusPay.Data.Helper;
+using NexusPay.Data.Repositories.Interfaces;
 using NexusPay.Shared.Models.Auth;
 using NexusPay.Shared.Models.Auth.Claims;
 using System.Data;
 
 namespace NexusPay.Data.Repositories
 {
-    public interface IAuthRepository
+    public class AuthRepository(IUniversal repo) : IAuthRepository
     {
-        Task<AuthClaims> Login(LoginRequest request);
-        Task ResetPassword(ResetPasswordRequest resetPasswordRequest);
-    }
-
-    public class AuthRepository : IAuthRepository
-    {
-        private readonly IUniversal _repo;
-        public AuthRepository(IUniversal universal)
-        {
-            _repo = universal;
-        }
-
         public async Task<AuthClaims> Login(LoginRequest request)
         {
-            DataRow? result = await _repo.ExecuteDataRowAsync(
+            DataRow? result = await repo.ExecuteDataRowAsync(
                command: "SP_LOGIN_USER",
                type: CommandType.StoredProcedure,
                new SqlParameter() { ParameterName = "@EMAIL", Value = request.Email, SqlDbType = SqlDbType.NVarChar }
@@ -41,7 +30,7 @@ namespace NexusPay.Data.Repositories
 
         public async Task ResetPassword(ResetPasswordRequest resetPasswordRequest)
         {
-            await _repo.ExecuteNonQueryAsync(
+            await repo.ExecuteNonQueryAsync(
                 command: "SP_RESET_PASSWORD",
                 type: CommandType.StoredProcedure,
                 new SqlParameter() { ParameterName = "@EMAIL", Value = resetPasswordRequest.Email, SqlDbType = SqlDbType.NVarChar },

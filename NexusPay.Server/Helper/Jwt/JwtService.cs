@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NexusPay.Shared.Jwt;
 using NexusPay.Shared.Models.Auth.Claims;
-using NexusPay.Shared.Models.Jwt;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

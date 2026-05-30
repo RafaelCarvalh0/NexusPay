@@ -9,11 +9,15 @@
     <File Path="Database/StoredProcedures/SP_DELETE_USER.sql" />
     <File Path="Database/StoredProcedures/SP_LOGIN_USER.sql" />
     <File Path="Database/StoredProcedures/SP_UPDATE_USER.sql" />
+    <File Path="SP_CREATE_TENANT.sql" />
     <File Path="SP_RESET_PASSWORD.sql" />
   </Folder>
   <Folder Name="/Database/Tables/">
+    <File Path="CUSTOMERS.sql" />
     <File Path="Database/Tables/ROLES.sql" />
     <File Path="Database/Tables/Users.sql" />
+    <File Path="TENANTS.sql" />
+    <File Path="TRANSACTIONS.sql" />
   </Folder>
   <Folder Name="/gRPC/">
     <File Path="NexusPay.Server/appsettings.Example.json" />

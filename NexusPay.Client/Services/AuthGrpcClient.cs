@@ -1,27 +1,14 @@
 ﻿using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
+using NexusPay.Client.Services.Interfaces;
 using NexusPay.Contracts;
 using NexusPay.Shared.Models.Auth;
 
 namespace NexusPay.Client.Services
 {
-    public interface IAuthGrpcClient
+    public class AuthGrpcClient(GrpcChannel channel, ILogger<AuthGrpcClient> logger) : IAuthGrpcClient
     {
-        Task<LoginResponse> LoginAsync(LoginRequest request);
-        Task ForgotPasswordRequestAsync(ForgotPasswordRequest request);
-        Task LogoutAsync(LogoutRequest request);
-        Task<bool> IsTokenRevokedAsync(string jti);
-        Task ResetPasswordAsync(ResetPasswordRequest request);
-    }
-
-    public class AuthGrpcClient : IAuthGrpcClient
-    {
-        private readonly AuthService.AuthServiceClient _client;
-
-        public AuthGrpcClient(GrpcChannel channel, ILogger<AuthGrpcClient> logger)
-        {
-            _client = new AuthService.AuthServiceClient(channel);
-        }
+        private readonly AuthService.AuthServiceClient _client = new(channel);
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
@@ -30,6 +17,8 @@ namespace NexusPay.Client.Services
                 Email = request.Email,
                 Password = request.Password
             });
+
+            logger.LogInformation("User logged in: {Email}", request.Email);
 
             return new LoginResponse(
                 Token: response.Token,
@@ -47,6 +36,8 @@ namespace NexusPay.Client.Services
             {
                 Email = request.Email
             });
+
+            logger.LogInformation("Password reset requested for email: {Email}", request.Email);
         }
 
         public async Task ResetPasswordAsync(ResetPasswordRequest request)
@@ -57,6 +48,8 @@ namespace NexusPay.Client.Services
                 Token = request.Token,
                 NewPassword = request.NewPassword
             });
+
+            logger.LogInformation("Password reset for email: {Email}", request.Email);
         }
 
         public async Task LogoutAsync(LogoutRequest request)
@@ -66,6 +59,8 @@ namespace NexusPay.Client.Services
                 Jti = request.Jti,
                 UserId = request.UserId
             });
+
+            logger.LogInformation("User logged out: {UserId}", request.UserId);
         }
 
         public async Task<bool> IsTokenRevokedAsync(string jti)

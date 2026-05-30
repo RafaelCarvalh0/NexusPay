@@ -12,7 +12,7 @@ namespace NexusPay.Server.Extensions
 
                 app.MapGrpcService<UserGrpcService>();
                 app.MapGrpcService<AuthGrpcService>();
-                app.MapGrpcService<TransactionGrpcService>();
+                app.MapGrpcService<TenantGrpcService>();
 
                 app.MapGrpcReflectionService();
 

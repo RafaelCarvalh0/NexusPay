@@ -41,7 +41,7 @@ namespace NexusPay.Api.Middlewares
 
                 RpcException => (StatusCodes.Status500InternalServerError, "An internal gRPC error occurred."),
 
-                _ => (StatusCodes.Status500InternalServerError, "An unexpected error occurred.")
+                _ => (StatusCodes.Status500InternalServerError, exception.Message ?? "An unexpected error occurred.")
             };
 
             if (statusCode == StatusCodes.Status500InternalServerError)

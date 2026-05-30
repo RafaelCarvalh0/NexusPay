@@ -1,25 +1,15 @@
 ﻿using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
+using NexusPay.Client.Services.Interfaces;
 using NexusPay.Contracts;
 using NexusPay.Shared.Models.User;
 
 namespace NexusPay.Client.Services
 {
-    public interface IUserGrpcClient
+    public class UserGrpcClient(GrpcChannel channel, ILogger<UserGrpcClient> logger) : IUserGrpcClient
     {
-        Task CreateUserAsync(CreateUserRequest request);
-        Task DeleteUserAsync(Guid userId);
-        Task UpdateUserAsync(string id, UpdateUserRequest request);
-    }
+        private readonly UserService.UserServiceClient _client = new(channel);
 
-    public class UserGrpcClient : IUserGrpcClient
-    {
-        private readonly UserService.UserServiceClient _client;
-
-        public UserGrpcClient(GrpcChannel channel, ILogger<UserGrpcClient> logger)
-        {
-            _client = new UserService.UserServiceClient(channel);
-        }
         public async Task CreateUserAsync(CreateUserRequest request)
         {
             await _client.CreateUserAsync(new CreateUserGrpcRequest
@@ -29,6 +19,8 @@ namespace NexusPay.Client.Services
                 Password = request.Password,
                 RoleId = request.RoleId
             });
+
+            logger.LogInformation("User created: {Email}", request.Email);
         }
 
         public async Task DeleteUserAsync(Guid userId)
@@ -37,6 +29,8 @@ namespace NexusPay.Client.Services
             {
                 Id = userId.ToString()
             });
+
+            logger.LogInformation("User deleted: {UserId}", userId);
         }
 
         public async Task UpdateUserAsync(string id, UpdateUserRequest request)
@@ -47,6 +41,8 @@ namespace NexusPay.Client.Services
                 Name = request.Name,
                 Email = request.Email
             });
+
+            logger.LogInformation("User updated: {UserId}", id);
         }
     }
 }

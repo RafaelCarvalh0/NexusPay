@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NexusPay.Api.Extensions;
-using NexusPay.Client.Services;
+using NexusPay.Client.Services.Interfaces;
 using NexusPay.Shared.Models.Auth;
 using System.IdentityModel.Tokens.Jwt;
 

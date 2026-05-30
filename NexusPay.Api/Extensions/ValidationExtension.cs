@@ -1,8 +1,5 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using NexusPay.Shared.Models.Error;
 
 namespace NexusPay.Api.Extensions
@@ -33,8 +30,10 @@ namespace NexusPay.Api.Extensions
                 IValidator<TRequest>? validator = context.HttpContext.RequestServices.GetService<IValidator<TRequest>>();
 
                 if (validator is null)
-                    return await next(context);
-                
+                    throw new InvalidOperationException(
+                        $"No validator registered for {typeof(TRequest).Name}. " +
+                        $"Register IValidator<{typeof(TRequest).Name}> in the DI container.");
+
                 ValidationResult validationResult = await validator.ValidateAsync(request);
 
                 if (!validationResult.IsValid)
@@ -53,7 +52,7 @@ namespace NexusPay.Api.Extensions
                         Path = context.HttpContext.Request.Path.Value!
                     }, statusCode: StatusCodes.Status400BadRequest);
                 }
-                
+
                 return await next(context);
             }
         }

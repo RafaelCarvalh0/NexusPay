@@ -1,11 +1,12 @@
 ﻿using NexusPay.Data.Configuration;
 using NexusPay.Data.Repositories;
+using NexusPay.Data.Repositories.Interfaces;
 using NexusPay.Server.Helper.Jwt;
 using NexusPay.Server.Helper.Mail;
 using NexusPay.Server.Helper.Redis;
 using NexusPay.Server.Interceptors;
 using NexusPay.Server.Options;
-using NexusPay.Shared.Models.Jwt;
+using NexusPay.Shared.Jwt;
 using StackExchange.Redis;
 
 namespace NexusPay.Server.Extensions
@@ -45,7 +46,7 @@ namespace NexusPay.Server.Extensions
             {
                 services.AddScoped<IUserRepository, UserRepository>();
                 services.AddScoped<IAuthRepository, AuthRepository>();
-                //services.AddScoped<ITransactionRepository, TransactionRepository>();
+                services.AddScoped<ITenantRepository, TenantRepository>();
 
                 return services;
             }

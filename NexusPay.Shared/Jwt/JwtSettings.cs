@@ -1,4 +1,4 @@
-﻿namespace NexusPay.Shared.Models.Jwt
+﻿namespace NexusPay.Shared.Jwt
 {
     public record JwtSettings
     {

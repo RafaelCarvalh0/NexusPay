@@ -1,31 +1,19 @@
 ﻿using Microsoft.Data.SqlClient;
 using NexusPay.Data.Configuration;
 using NexusPay.Data.Helper;
+using NexusPay.Data.Repositories.Interfaces;
 using NexusPay.Shared.Models.User;
 using System.Data;
 
 namespace NexusPay.Data.Repositories
 {
-    public interface IUserRepository
+    public class UserRepository(IUniversal repo) : IUserRepository
     {
-        Task CreateUser(CreateUserRequest request);
-        Task DeleteUser(Guid id);
-        Task UpdateUser(string id, UpdateUserRequest request);
-    }
-
-    public class UserRepository : IUserRepository
-    {
-        private readonly IUniversal _repo;
-        public UserRepository(IUniversal universal)
-        {
-            _repo = universal;
-        }
-
         public async Task CreateUser(CreateUserRequest request)
         {
             string hashedPassword = PasswordHelper.Hash(request.Password);
 
-            await _repo.ExecuteNonQueryAsync(
+            await repo.ExecuteNonQueryAsync(
                 command: "SP_CREATE_USER",
                 type: CommandType.StoredProcedure,
                 new SqlParameter() { ParameterName = "@NAME", Value = request.Name, SqlDbType = SqlDbType.VarChar },
@@ -37,7 +25,7 @@ namespace NexusPay.Data.Repositories
 
         public async Task DeleteUser(Guid id)
         {
-            await _repo.ExecuteNonQueryAsync(
+            await repo.ExecuteNonQueryAsync(
                 command: "SP_DELETE_USER",
                 type: CommandType.StoredProcedure,
                 new SqlParameter() { ParameterName = "@ID", Value = id, SqlDbType = SqlDbType.UniqueIdentifier }
@@ -46,7 +34,7 @@ namespace NexusPay.Data.Repositories
 
         public async Task UpdateUser(string id, UpdateUserRequest request)
         {
-            await _repo.ExecuteNonQueryAsync(
+            await repo.ExecuteNonQueryAsync(
                 command: "SP_UPDATE_USER",
                 type: CommandType.StoredProcedure,
                 new SqlParameter() { ParameterName = "@ID", Value = id, SqlDbType = SqlDbType.VarChar },

@@ -1,25 +1,16 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using NexusPay.Contracts;
-using NexusPay.Data.Repositories;
+using NexusPay.Data.Repositories.Interfaces;
 using NexusPay.Shared.Models.User;
 
 namespace NexusPay.Server.Services
 {
-    public class UserGrpcService : UserService.UserServiceBase
+    public class UserGrpcService(ILogger<UserGrpcService> logger, IUserRepository userRepository) : UserService.UserServiceBase
     {
-        private readonly ILogger<UserGrpcService> _logger;
-        private readonly IUserRepository _userRepository;
-
-        public UserGrpcService(ILogger<UserGrpcService> logger, IUserRepository userRepository)
-        {
-            _logger = logger;
-            _userRepository = userRepository;
-        }
-
         public override async Task<Empty> CreateUser(CreateUserGrpcRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Received CreateUser request for email: {Email}", request.Email);
+            logger.LogInformation("Received CreateUser request for email: {Email}", request.Email);
 
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Name is required"));
@@ -30,7 +21,7 @@ namespace NexusPay.Server.Services
             if (string.IsNullOrWhiteSpace(request.Password))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Password is required"));
 
-            await _userRepository.CreateUser(new CreateUserRequest
+            await userRepository.CreateUser(new CreateUserRequest
             (
                 Name: request.Name,
                 Email: request.Email,
@@ -43,7 +34,7 @@ namespace NexusPay.Server.Services
 
         public override async Task<Empty> UpdateUser(UpdateUserGrpcRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Received UpdateUser request for email: {Email}", request.Email);
+            logger.LogInformation("Received UpdateUser request for email: {Email}", request.Email);
 
             if (string.IsNullOrWhiteSpace(request.Name))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Name is required"));
@@ -51,7 +42,7 @@ namespace NexusPay.Server.Services
             if (string.IsNullOrWhiteSpace(request.Email))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Email is required"));
 
-            await _userRepository.UpdateUser(request.Id, new UpdateUserRequest
+            await userRepository.UpdateUser(request.Id, new UpdateUserRequest
             (
                 Name: request.Name,
                 Email: request.Email
@@ -62,7 +53,7 @@ namespace NexusPay.Server.Services
 
         public override async Task<Empty> DeleteUser(DeleteUserGrpcRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Received DeleteUser request for user ID: {UserId}", request.Id);
+            logger.LogInformation("Received DeleteUser request for user ID: {UserId}", request.Id);
 
             if (string.IsNullOrWhiteSpace(request.Id))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "User ID is required"));
@@ -70,7 +61,7 @@ namespace NexusPay.Server.Services
             if (!Guid.TryParse(request.Id, out Guid id))
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid user ID format"));
 
-            await _userRepository.DeleteUser(id);
+            await userRepository.DeleteUser(id);
 
             return new Empty();
         }

@@ -1,4 +1,5 @@
 ﻿using NexusPay.Client.Services;
+using NexusPay.Client.Services.Interfaces;
 using NexusPay.Shared.Models.Error;
 using System.IdentityModel.Tokens.Jwt;
 

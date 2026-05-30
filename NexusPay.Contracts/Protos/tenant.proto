@@ -1,0 +1,16 @@
+﻿syntax = "proto3";
+import "google/protobuf/empty.proto";
+option csharp_namespace = "NexusPay.Contracts";
+
+package tenant;
+
+service TenantService {
+  rpc CreateTenant (CreateTenantGrpcRequest) returns (google.protobuf.Empty);
+}
+
+message CreateTenantGrpcRequest {
+  string name = 1;
+  string document = 2;
+  string email = 3;
+  string phone = 4;
+}

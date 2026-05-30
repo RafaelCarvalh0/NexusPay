@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using NexusPay.Api.Middlewares;
 using NexusPay.Client.Services;
-using NexusPay.Shared.Models.Auth;
-using NexusPay.Shared.Models.Auth.Validators;
-using NexusPay.Shared.Models.Jwt;
-using NexusPay.Shared.Models.User;
-using NexusPay.Shared.Models.User.Validators;
+using NexusPay.Client.Services.Interfaces;
+using NexusPay.Shared.Jwt;
+using NexusPay.Shared.Markers;
 using System.Text;
 
 namespace NexusPay.Api.Extensions
@@ -38,8 +36,8 @@ namespace NexusPay.Api.Extensions
                     {
                         policy.WithOrigins(
                                   "https://nexuspay.com.br",       // prod
-                                  "http://localhost:3000",          // frontend dev
-                                  "http://127.0.0.1:5500"          
+                                  "http://localhost:3000",         // frontend dev
+                                  "http://127.0.0.1:5500"          // from file system (e.g., Live Server)
                               )
                               .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE")
                               .WithHeaders("Content-Type", "Authorization");
@@ -85,10 +83,8 @@ namespace NexusPay.Api.Extensions
 
             private IServiceCollection AddValidators()
             {
-                services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
-                services.AddScoped<IValidator<LoginRequest>, LoginRequestValidator>();
-                services.AddScoped<IValidator<ForgotPasswordRequest>, ForgotPasswordRequestValidator>();
-                services.AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordRequestValidator>();
+                // Registers all validators in the assembly containing SharedAssemblyMarker
+                services.AddValidatorsFromAssembly(typeof(SharedAssemblyMarker).Assembly);
 
                 return services;
             }
@@ -109,6 +105,7 @@ namespace NexusPay.Api.Extensions
 
                 services.AddScoped<IUserGrpcClient, UserGrpcClient>();
                 services.AddScoped<IAuthGrpcClient, AuthGrpcClient>();
+                services.AddScoped<ITenantGrpcClient, TenantGrpcClient>();
 
                 return services;
             }
